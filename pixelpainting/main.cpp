@@ -17,6 +17,8 @@ void drawPixel(const int& i, const int& j, const float& red, const float& green,
 	pixels[(i + width* j) * 3 + 2] = blue;
 }
 
+// scratched from https://courses.engr.illinois.edu/ece390/archive/archive-f2000/mp/mp4/anti.html
+// see 'Rasterization' part.
 void drawLine(const int& i0, const int& j0, const int& i1, const int& j1, const float& red, const float& green, const float& blue)
 {
 	for (int i = i0; i <= i1; i++)
