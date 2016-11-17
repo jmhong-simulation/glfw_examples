@@ -1,3 +1,10 @@
+/*
+
+http://www.opengl-tutorial.org/beginners-tutorials/
+https://github.com/opengl-tutorials/ogl
+
+*/
+
 // Include standard headers
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,21 +72,29 @@ int main(void)
 	// Create and compile our GLSL program from the shaders
 	GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
-
-
-	static const GLfloat g_vertex_buffer_data[] = {
+	const GLfloat triangle_vertices[] = {
 		0.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
 		0.5f,  1.0f, 0.0f,
-		0.5f,  1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f,
 	};
+
+	const GLfloat square_vertices[] = {
+		0.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+	};
+
 
 	GLuint vertexbuffer;
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
+
+	GLuint vertexbuffer2;
+	glGenBuffers(1, &vertexbuffer2);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
 
 	do {
 
@@ -118,7 +133,20 @@ int main(void)
 		);
 
 		// Draw the triangle !
-		glDrawArrays(GL_LINES, 0, 6); // 6 vertices
+		glDrawArrays(GL_LINE_LOOP, 0, 3); // 6 vertices
+
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer2);
+		glVertexAttribPointer(
+			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+
+		glDrawArrays(GL_LINE_LOOP, 0, 4); // 6 vertices
 
 		glDisableVertexAttribArray(0);
 
