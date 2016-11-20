@@ -9,8 +9,10 @@ public:
 	using GLObject::vertexbuffer;
 	using GLObject::genVertexBuffer;
 
-	GLLineSegments(const std::vector<glm::vec3>& vertices_input)
+	void update(const std::vector<glm::vec3>& vertices_input)
 	{
+		vertices.clear();
+
 		for(auto itr : vertices_input)
 		{
 			vertices.push_back(itr);

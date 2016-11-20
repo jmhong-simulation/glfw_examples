@@ -9,7 +9,7 @@ public:
 	using GLObject::vertexbuffer;
 	using GLObject::genVertexBuffer;
 
-	GLSquare(const glm::vec3& center, const float& dx, const float& dy)
+	void update(const glm::vec3& center, const float& dx, const float& dy)
 	{
 		center_ = center;
 

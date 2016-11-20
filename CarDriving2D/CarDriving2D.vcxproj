@@ -137,6 +137,7 @@
     <ClInclude Include="GLLineSegments.h" />
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="GLSquare.h" />
+    <ClInclude Include="SelfDrivingCar.h" />
     <ClInclude Include="shader.hpp" />
   </ItemGroup>
   <ItemGroup>
