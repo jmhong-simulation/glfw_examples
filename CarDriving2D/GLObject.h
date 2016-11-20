@@ -99,14 +99,14 @@ public:
 
 			glm::vec3 *col_pt_ptr = col.intersection(ray_start, ray_end, vertices[i%vertices.size()], vertices[(i + 1)%vertices.size()]);
 
-			std::cout << "End pt "<< vertices[i].x<<" "<<vertices[i].y << " ! " << vertices[(i + 1) % vertices.size()].x << " "<< vertices[(i + 1) % vertices.size()].y << std::endl;
+			//std::cout << "End pt "<< vertices[i].x<<" "<<vertices[i].y << " ! " << vertices[(i + 1) % vertices.size()].x << " "<< vertices[(i + 1) % vertices.size()].y << std::endl;
 
 			if (col_pt_ptr != nullptr)
 			{
 				// check if closest collision point
 				const float col_t = glm::distance(*col_pt_ptr, ray_start);
 
-				std::cout << "Col distance "<< col_t << std::endl;
+				//std::cout << "Col distance "<< col_t << std::endl;
 
 				if (col_t < min_t)
 				{

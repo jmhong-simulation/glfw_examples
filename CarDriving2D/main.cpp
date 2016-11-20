@@ -25,35 +25,6 @@ int main(void)
 	GLSquare my_square(glm::vec3(0.5f, 0.5f, 0.0f), 0.2f, 0.1f);
 	GLSquare my_square2(glm::vec3(0.9f, 0.5f, 0.0f), 0.1f, 0.2f);
 
-	std::vector<glm::vec3> sensor_lines;
-	const glm::vec3 center(0.5, 0.5, 0.0);
-	const float radius = 1.0;
-	for (int i = 0; i < 360; i+=10)
-	{
-		const glm::vec3 r = center + glm::vec3(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f);
-
-		int flag;
-		glm::vec3 col_pt;
-		float t;
-
-		my_square2.checkCollisionLoop(center, r, flag, t, col_pt);
-
-		//TODO: clamp col_pt by r
-		if (flag == 1)
-		{
-			sensor_lines.push_back(center);
-			sensor_lines.push_back(col_pt);
-		}
-		else
-		{
-			sensor_lines.push_back(center);
-			sensor_lines.push_back(r);
-		}
-	}
-	
-	GLLineSegments lines(sensor_lines);
-	lines.center_ = my_square.center_;
-
 	do {
 
 		// Clear the screen
@@ -81,6 +52,39 @@ int main(void)
 		my_square.rotateCenteredZAxis(1);
 		my_square.drawLineLoop(MatrixID, Projection * View);
 		my_square2.drawLineLoop(MatrixID, Projection * View);
+
+		// sensor lines
+		std::vector<glm::vec3> sensor_lines;
+		const glm::vec3 center = my_square.center_;
+		const float radius = 1.0;
+		for (int i = 0; i < 360; i += 10)
+		{
+			glm::vec4 end_pt = glm::vec4(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f, 0.0f);
+			end_pt = my_square.model_matrix_ * end_pt;
+
+			const glm::vec3 r = center + glm::vec3(end_pt.x, end_pt.y, end_pt.z);
+
+			int flag;
+			glm::vec3 col_pt;
+			float t;
+
+			my_square2.checkCollisionLoop(center, r, flag, t, col_pt);
+
+			//TODO: clamp col_pt by r
+			if (flag == 1)
+			{
+				sensor_lines.push_back(center);
+				sensor_lines.push_back(col_pt);
+			}
+			else
+			{
+				sensor_lines.push_back(center);
+				sensor_lines.push_back(r);
+			}
+		}
+
+		GLLineSegments lines(sensor_lines);
+		lines.center_ = my_square.center_;
 
 		//lines.rotateCenteredZAxis(1);
 		lines.drawLineLoop(MatrixID, Projection * View);
