@@ -8,6 +8,9 @@ public:
 	
 	glm::vec3 dir_;
 
+	float turn_coeff_ = 0.2;
+	float accel_coeff_ = 0.01;
+
 	SelfDrivingCar()
 	{
 		init();
@@ -18,6 +21,30 @@ public:
 	void init()
 	{
 		car_body.update(glm::vec3(0.5f, 0.5f, 0.0f), 0.2f, 0.1f);
+	}
+
+	void turnLeft()
+	{
+		car_body.rotateCenteredZAxis(turn_coeff_);
+	}
+
+	void turnRight()
+	{
+		car_body.rotateCenteredZAxis(-turn_coeff_);
+	}
+
+	void accel()
+	{
+		car_body.model_matrix_ = glm::translate(dir_ * accel_coeff_) * car_body.model_matrix_;
+
+		car_body.center_ += dir_ * accel_coeff_; //TODO: update model_matrix AND center?
+	}
+
+	void decel()
+	{
+		car_body.model_matrix_ = glm::translate(dir_ * -accel_coeff_) * car_body.model_matrix_;
+
+		car_body.center_ -= dir_ * accel_coeff_; //TODO: update model_matrix AND center?
 	}
 
 	void updateSensor(const GLSquare& my_square2)// parameter -> object list

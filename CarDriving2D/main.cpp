@@ -57,24 +57,14 @@ int main(void)
 		// animate update
 		//my_car.car_body.rotateCenteredZAxis(1);
 
-		if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) my_car.car_body.rotateCenteredZAxis(0.1);
-		if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) my_car.car_body.rotateCenteredZAxis(-0.1);
-		if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) {
-		//	my_car.car_body.rotateCenteredZAxis(-0.1);
-
-			my_car.car_body.model_matrix_ = glm::translate(my_car.dir_ * 0.001f) * my_car.car_body.model_matrix_;
-
-			my_car.car_body.center_ += my_car.dir_ * 0.001f; //TODO: update model_matrix AND center?
-		}
-		if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) {
-			//	my_car.car_body.rotateCenteredZAxis(-0.1);
-
-			my_car.car_body.model_matrix_ = glm::translate(-my_car.dir_* 0.001f) * my_car.car_body.model_matrix_;
-
-			my_car.car_body.center_ -= my_car.dir_ * 0.001f;
-		}
+		if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) my_car.turnLeft();
+		if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) my_car.turnRight();
+		if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) my_car.accel();
+		if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) my_car.decel();
 
 		my_car.updateSensor(my_square2);
+
+		//TODO: dont allow for the car to penetrate objects
 
 		// draw
 		my_car.car_body.drawLineLoop(MatrixID, Projection * View);
