@@ -67,7 +67,7 @@ public:
 
 	bool getKeyPressed(const int& key)
 	{
-		return (glfwGetKey(window, key) != GLFW_PRESS);
+		return (glfwGetKey(window, key) == GLFW_PRESS);
 	}
 
 	bool getWindowShouldClose()

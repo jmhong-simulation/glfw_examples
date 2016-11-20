@@ -55,7 +55,25 @@ int main(void)
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
 		// animate update
-		my_car.car_body.rotateCenteredZAxis(1);
+		//my_car.car_body.rotateCenteredZAxis(1);
+
+		if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) my_car.car_body.rotateCenteredZAxis(0.1);
+		if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) my_car.car_body.rotateCenteredZAxis(-0.1);
+		if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) {
+		//	my_car.car_body.rotateCenteredZAxis(-0.1);
+
+			my_car.car_body.model_matrix_ = glm::translate(my_car.dir_ * 0.001f) * my_car.car_body.model_matrix_;
+
+			my_car.car_body.center_ += my_car.dir_ * 0.001f; //TODO: update model_matrix AND center?
+		}
+		if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) {
+			//	my_car.car_body.rotateCenteredZAxis(-0.1);
+
+			my_car.car_body.model_matrix_ = glm::translate(-my_car.dir_* 0.001f) * my_car.car_body.model_matrix_;
+
+			my_car.car_body.center_ -= my_car.dir_ * 0.001f;
+		}
+
 		my_car.updateSensor(my_square2);
 
 		// draw
@@ -68,7 +86,7 @@ int main(void)
 		glfw_example.swapBuffers();
 
 	} // Check if the ESC key was pressed or the window was closed
-	while (glfw_example.getKeyPressed(GLFW_KEY_ESCAPE) &&	glfw_example.getWindowShouldClose());
+	while (!glfw_example.getKeyPressed(GLFW_KEY_ESCAPE) &&	glfw_example.getWindowShouldClose());
 
 	// Cleanup VBO
 	//glDeleteBuffers(1, &vertexbuffer);

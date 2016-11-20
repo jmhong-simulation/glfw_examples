@@ -5,10 +5,14 @@ class SelfDrivingCar
 public:
 	GLSquare car_body;
 	GLLineSegments sensing_lines;
+	
+	glm::vec3 dir_;
 
 	SelfDrivingCar()
 	{
 		init();
+
+		dir_ = glm::vec3(1, 0, 0);
 	}
 
 	void init()
