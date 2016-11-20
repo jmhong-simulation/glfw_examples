@@ -15,6 +15,11 @@ public:
 
 	GLuint vertexbuffer;
 
+	~GLObject()
+	{
+		glDeleteBuffers(1, &vertexbuffer);
+	}
+
 	void genVertexBuffer()
 	{
 		if (vertices.size() > 0)
@@ -28,6 +33,8 @@ public:
 	void drawLineLoop(const GLint& MatrixID, const glm::mat4 vp)
 	{
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &(vp*model_matrix_)[0][0]);
+		
+		glEnableVertexAttribArray(0); //TODO: not quite sure if this need to be called before all object drawing
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
@@ -42,6 +49,27 @@ public:
 		);
 
 		glDrawArrays(GL_LINE_LOOP, 0, vertices.size() / 3);
+	}
+
+	void drawLines(const GLint& MatrixID, const glm::mat4 vp)
+	{
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &(vp*model_matrix_)[0][0]);
+
+		glEnableVertexAttribArray(0); //TODO: not quite sure if this need to be called before all object drawing
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		glVertexAttribPointer
+		(
+			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+			3,                  // size (x, y, z)
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+
+		glDrawArrays(GL_LINES, 0, vertices.size() / 3);
 	}
 
 	void rotateCenteredZAxis(const float& angle_degree)

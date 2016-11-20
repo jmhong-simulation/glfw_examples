@@ -132,7 +132,9 @@
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="GLFWExample.h" />
+    <ClInclude Include="GLLineSegments.h" />
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="GLSquare.h" />
     <ClInclude Include="shader.hpp" />

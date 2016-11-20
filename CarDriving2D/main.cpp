@@ -7,6 +7,7 @@ https://github.com/opengl-tutorials/ogl
 
 #include "GLFWExample.h"
 #include "GLSquare.h"
+#include "GLLineSegments.h"
 
 GLFWExample glfw_example;
 
@@ -21,26 +22,16 @@ int main(void)
 	// Create and compile our GLSL program from the shaders
 	GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
-	const GLfloat triangle_vertices[] = {
-		0.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		0.5f,  1.0f, 0.0f,
-	};
+	GLSquare my_square(glm::vec3(0.5f, 0.5f, 0.0f), 0.2f, 0.1f);
+	GLSquare my_square2(glm::vec3(0.9f, 0.5f, 0.0f), 0.1f, 0.2f);
 
-	//const GLfloat square_vertices[] = {
-	//	0.0f, 0.0f, 0.0f,
-	//	1.0f, 0.0f, 0.0f,
-	//	1.0f, 1.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f,
-	//};
+	std::vector<glm::vec3> sensor_lines;
+	sensor_lines.push_back(glm::vec3(0.5f, 0.5f, 0.0f));
+	sensor_lines.push_back(glm::vec3(1.0f, 0.5f, 0.0f));
+	sensor_lines.push_back(glm::vec3(0.5f, 0.5f, 0.0f));
+	sensor_lines.push_back(glm::vec3(1.0f, 0.8f, 0.0f));
 
-	GLSquare my_square(glm::vec3(0.5f, 0.5f, 0.0f), 0.3f, 0.5);
-
-	GLuint vertexbuffer;
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
-
+	GLLineSegments lines(sensor_lines);
 
 	do {
 
@@ -67,22 +58,24 @@ int main(void)
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
 		// 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);
+		//glEnableVertexAttribArray(0);
+		//glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		//glVertexAttribPointer(
+		//	0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		//	3,                  // size
+		//	GL_FLOAT,           // type
+		//	GL_FALSE,           // normalized?
+		//	0,                  // stride
+		//	(void*)0            // array buffer offset
+		//);
 
 		// Draw the triangle !
 		glDrawArrays(GL_LINE_LOOP, 0, 3); // 6 vertices
 
 		my_square.rotateCenteredZAxis(1);
 		my_square.drawLineLoop(MatrixID, Projection * View);
+		my_square2.drawLineLoop(MatrixID, Projection * View);
+		lines.drawLineLoop(MatrixID, Projection * View);
 
 		glDisableVertexAttribArray(0);
 
@@ -92,7 +85,7 @@ int main(void)
 	while (glfw_example.getKeyPressed(GLFW_KEY_ESCAPE) &&	glfw_example.getWindowShouldClose());
 
 	// Cleanup VBO
-	glDeleteBuffers(1, &vertexbuffer);
+	//glDeleteBuffers(1, &vertexbuffer);
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
