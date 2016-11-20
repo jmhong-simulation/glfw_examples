@@ -4,6 +4,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 #include <vector>
+#include "Collision.h"
+#include <iostream>
 
 class GLObject
 {
@@ -11,7 +13,8 @@ public:
 	glm::vec3 center_;
 	glm::mat4 model_matrix_ = glm::mat4(1.0f);
 
-	std::vector<float> vertices;
+	//std::vector<float> vertices;
+	std::vector<glm::vec3> vertices;
 
 	GLuint vertexbuffer;
 
@@ -48,7 +51,7 @@ public:
 			(void*)0            // array buffer offset
 		);
 
-		glDrawArrays(GL_LINE_LOOP, 0, vertices.size() / 3);
+		glDrawArrays(GL_LINE_LOOP, 0, vertices.size());
 	}
 
 	void drawLines(const GLint& MatrixID, const glm::mat4 vp)
@@ -80,5 +83,40 @@ public:
 		//model_matrix_ = glm::translate(model_matrix_ , +center_);
 
 		model_matrix_ = glm::translate(center_) * glm::rotate(glm::mat4(), glm::radians(angle_degree), glm::vec3(0, 0, 1)) * glm::translate(-center_) * model_matrix_;
+	}
+
+	void checkCollisionLoop(const glm::vec3& ray_start, const glm::vec3& ray_end, int& flag, float& t, glm::vec3& col_pt)
+	{
+		Collision col;
+		flag = 0;
+
+		//TODO: check t and find closest collision
+		float min_t = 1e8;
+
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			//todo: debug
+
+			glm::vec3 *col_pt_ptr = col.intersection(ray_start, ray_end, vertices[i%vertices.size()], vertices[(i + 1)%vertices.size()]);
+
+			std::cout << "End pt "<< vertices[i].x<<" "<<vertices[i].y << " ! " << vertices[(i + 1) % vertices.size()].x << " "<< vertices[(i + 1) % vertices.size()].y << std::endl;
+
+			if (col_pt_ptr != nullptr)
+			{
+				// check if closest collision point
+				const float col_t = glm::distance(*col_pt_ptr, ray_start);
+
+				std::cout << "Col distance "<< col_t << std::endl;
+
+				if (col_t < min_t)
+				{
+					flag = 1;
+					col_pt = *col_pt_ptr;		
+					min_t = col_t;
+				}		
+			}
+		}
+
+		if (flag > 0) t = min_t;
 	}
 };

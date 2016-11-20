@@ -26,12 +26,33 @@ int main(void)
 	GLSquare my_square2(glm::vec3(0.9f, 0.5f, 0.0f), 0.1f, 0.2f);
 
 	std::vector<glm::vec3> sensor_lines;
-	sensor_lines.push_back(glm::vec3(0.5f, 0.5f, 0.0f));
-	sensor_lines.push_back(glm::vec3(1.0f, 0.5f, 0.0f));
-	sensor_lines.push_back(glm::vec3(0.5f, 0.5f, 0.0f));
-	sensor_lines.push_back(glm::vec3(1.0f, 0.8f, 0.0f));
+	const glm::vec3 center(0.5, 0.5, 0.0);
+	const float radius = 1.0;
+	for (int i = 0; i < 360; i+=10)
+	{
+		const glm::vec3 r = center + glm::vec3(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f);
 
+		int flag;
+		glm::vec3 col_pt;
+		float t;
+
+		my_square2.checkCollisionLoop(center, r, flag, t, col_pt);
+
+		//TODO: clamp col_pt by r
+		if (flag == 1)
+		{
+			sensor_lines.push_back(center);
+			sensor_lines.push_back(col_pt);
+		}
+		else
+		{
+			sensor_lines.push_back(center);
+			sensor_lines.push_back(r);
+		}
+	}
+	
 	GLLineSegments lines(sensor_lines);
+	lines.center_ = my_square.center_;
 
 	do {
 
@@ -57,24 +78,11 @@ int main(void)
 
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-		// 1rst attribute buffer : vertices
-		//glEnableVertexAttribArray(0);
-		//glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		//glVertexAttribPointer(
-		//	0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		//	3,                  // size
-		//	GL_FLOAT,           // type
-		//	GL_FALSE,           // normalized?
-		//	0,                  // stride
-		//	(void*)0            // array buffer offset
-		//);
-
-		// Draw the triangle !
-		glDrawArrays(GL_LINE_LOOP, 0, 3); // 6 vertices
-
 		my_square.rotateCenteredZAxis(1);
 		my_square.drawLineLoop(MatrixID, Projection * View);
 		my_square2.drawLineLoop(MatrixID, Projection * View);
+
+		//lines.rotateCenteredZAxis(1);
 		lines.drawLineLoop(MatrixID, Projection * View);
 
 		glDisableVertexAttribArray(0);

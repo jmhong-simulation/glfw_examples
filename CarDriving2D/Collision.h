@@ -7,7 +7,12 @@ class Collision
 public:
 	typedef typename glm::vec3 Point;
 
-	Point* intersection(Point p1, Point p2, Point p3, Point p4) {
+	// http://flassari.is/2008/11/line-line-intersection-in-cplusplus/
+	// epsilon was from a comment by varsha
+	Point* intersection(Point p1, Point p2, Point p3, Point p4) 
+	{
+		const float epsilon = 1e-5;
+
 		// Store the values for fast access and easy
 		// equations-to-code conversion
 		float x1 = p1.x, x2 = p2.x, x3 = p3.x, x4 = p4.x;
@@ -23,10 +28,10 @@ public:
 		float y = (pre * (y3 - y4) - (y1 - y2) * post) / d;
 
 		// Check if the x and y coordinates are within both lines
-		if (x < glm::min<float>(x1, x2) || x > glm::max<float>(x1, x2) ||
-			x < glm::min<float>(x3, x4) || x > glm::max<float>(x3, x4)) return nullptr;
-		if (y < glm::min<float>(y1, y2) || y > glm::max<float>(y1, y2) ||
-			y < glm::min<float>(y3, y4) || y > glm::max<float>(y3, y4)) return nullptr;
+		if (x < glm::min<float>(x1, x2) - epsilon || x > glm::max<float>(x1, x2) + epsilon ||
+			x < glm::min<float>(x3, x4) - epsilon || x > glm::max<float>(x3, x4) + epsilon) return nullptr;
+		if (y < glm::min<float>(y1, y2) - epsilon || y > glm::max<float>(y1, y2) + epsilon ||
+			y < glm::min<float>(y3, y4) - epsilon || y > glm::max<float>(y3, y4) + epsilon) return nullptr;
 
 		// Return the point of intersection
 		Point* ret = new Point();

@@ -13,9 +13,7 @@ public:
 	{
 		for(auto itr : vertices_input)
 		{
-			vertices.push_back(itr.x);
-			vertices.push_back(itr.y);
-			vertices.push_back(itr.z);
+			vertices.push_back(itr);
 		}
 
 		genVertexBuffer();

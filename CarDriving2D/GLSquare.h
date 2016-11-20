@@ -13,21 +13,15 @@ public:
 	{
 		center_ = center;
 
-		vertices.push_back(center.x - dx);
-		vertices.push_back(center.y - dy);
-		vertices.push_back(center.z);
+		const glm::vec3 v0(center.x - dx, center.y - dy, center.z);
+		const glm::vec3 v1(center.x + dx, center.y - dy, center.z);
+		const glm::vec3 v2(center.x + dx, center.y + dy, center.z);
+		const glm::vec3 v3(center.x - dx, center.y + dy, center.z);
 
-		vertices.push_back(center.x + dx);
-		vertices.push_back(center.y - dy);
-		vertices.push_back(center.z);
-
-		vertices.push_back(center.x + dx);
-		vertices.push_back(center.y + dy);
-		vertices.push_back(center.z);
-
-		vertices.push_back(center.x - dx);
-		vertices.push_back(center.y + dy);
-		vertices.push_back(center.z);
+		vertices.push_back(v0);
+		vertices.push_back(v1);
+		vertices.push_back(v2);
+		vertices.push_back(v3);
 
 		genVertexBuffer();
 	}
