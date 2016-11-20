@@ -62,6 +62,8 @@ int main(void)
 		if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) my_car.accel();
 		if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) my_car.decel();
 
+		my_car.update();
+
 		my_car.updateSensor(my_square2);
 
 		//TODO: dont allow for the car to penetrate objects

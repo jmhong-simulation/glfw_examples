@@ -6,16 +6,18 @@ public:
 	GLSquare car_body;
 	GLLineSegments sensing_lines;
 	
-	glm::vec3 dir_;
+	glm::vec3 dir_, vel_;
 
-	float turn_coeff_ = 0.2;
-	float accel_coeff_ = 0.01;
+	float turn_coeff_ = 1.0;
+	float accel_coeff_ = 0.0001;
+	float fric = 0.01;
 
 	SelfDrivingCar()
 	{
 		init();
 
-		dir_ = glm::vec3(1, 0, 0);
+		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
+		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 
 	void init()
@@ -25,26 +27,50 @@ public:
 
 	void turnLeft()
 	{
+		const glm::mat4 rot_mat = glm::rotate(glm::mat4(), glm::radians(turn_coeff_), glm::vec3(0, 0, 1));
+
+		glm::vec4 temp(dir_.x, dir_.y, dir_.z, 0.0f);
+
+		temp = rot_mat * temp;
+
+		dir_.x = temp.x;
+		dir_.y = temp.y;
+
 		car_body.rotateCenteredZAxis(turn_coeff_);
 	}
 
 	void turnRight()
 	{
+		const glm::mat4 rot_mat = glm::rotate(glm::mat4(), glm::radians(-turn_coeff_), glm::vec3(0, 0, 1));
+
+		glm::vec4 temp(dir_.x, dir_.y, dir_.z, 0.0f);
+
+		temp = rot_mat * temp;
+
+		dir_.x = temp.x;
+		dir_.y = temp.y;
+
 		car_body.rotateCenteredZAxis(-turn_coeff_);
 	}
 
 	void accel()
 	{
-		car_body.model_matrix_ = glm::translate(dir_ * accel_coeff_) * car_body.model_matrix_;
-
-		car_body.center_ += dir_ * accel_coeff_; //TODO: update model_matrix AND center?
+		vel_ += accel_coeff_ * dir_;
 	}
 
 	void decel()
 	{
-		car_body.model_matrix_ = glm::translate(dir_ * -accel_coeff_) * car_body.model_matrix_;
+		vel_ -= accel_coeff_ * dir_;
+	}
 
-		car_body.center_ -= dir_ * accel_coeff_; //TODO: update model_matrix AND center?
+	void update()
+	{
+
+		vel_ *= (1.0f - fric);
+
+		car_body.model_matrix_ = glm::translate(vel_) * car_body.model_matrix_;
+
+		car_body.center_ += vel_; //TODO: update model_matrix AND center?
 	}
 
 	void updateSensor(const GLSquare& my_square2)// parameter -> object list
