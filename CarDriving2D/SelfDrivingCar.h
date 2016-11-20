@@ -37,6 +37,12 @@ public:
 		dir_.y = temp.y;
 
 		car_body.rotateCenteredZAxis(turn_coeff_);
+
+		float x = 1.0;
+
+		if (glm::dot(vel_, dir_) < 0.0) x = -1.0;
+
+		vel_ = dir_ * sqrt(glm::dot(vel_, vel_)) * x;
 	}
 
 	void turnRight()
@@ -51,6 +57,12 @@ public:
 		dir_.y = temp.y;
 
 		car_body.rotateCenteredZAxis(-turn_coeff_);
+
+		float x = 1.0;
+
+		if (glm::dot(vel_, dir_) < 0.0) x = -1.0;
+
+		vel_ = dir_ * sqrt(glm::dot(vel_, vel_)) * x;
 	}
 
 	void accel()
