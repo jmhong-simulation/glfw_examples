@@ -23,6 +23,14 @@ public:
 		glDeleteBuffers(1, &vertexbuffer);
 	}
 
+	glm::vec3 getTransformed(const glm::vec3 v) const
+	{
+		glm::vec4 v4 = model_matrix_ * glm::vec4(v.x, v.y, v.z, 1.0f);
+
+		return glm::vec3(v4.x, v4.y, v4.z);		
+
+	}
+
 	void genVertexBuffer()
 	{
 		if (vertices.size() > 0)
@@ -85,6 +93,25 @@ public:
 		model_matrix_ = glm::translate(center_) * glm::rotate(glm::mat4(), glm::radians(angle_degree), glm::vec3(0, 0, 1)) * glm::translate(-center_) * model_matrix_;
 	}
 
+	bool checkCollisionLoop(const GLObject& obj2)
+	{
+		Collision col;
+
+		for (int i = 0; i < vertices.size(); i++)
+			for (int j = 0; j < obj2.vertices.size(); j++)
+			{
+				glm::vec3 *col_pt_ptr = col.intersection(
+					obj2.getTransformed(obj2.vertices[j%obj2.vertices.size()]),
+					obj2.getTransformed(obj2.vertices[(j+1)%obj2.vertices.size()]),
+					getTransformed(vertices[i%vertices.size()]),
+					getTransformed(vertices[(i + 1) % vertices.size()]));
+
+				if (col_pt_ptr != nullptr) return true;
+			}
+
+		return false;
+	}
+
 	void checkCollisionLoop(const glm::vec3& ray_start, const glm::vec3& ray_end, int& flag, float& t, glm::vec3& col_pt) const
 	{
 		Collision col;
@@ -95,8 +122,7 @@ public:
 
 		for (int i = 0; i < vertices.size(); i++)
 		{
-			//todo: debug
-
+			//TODO: transformed vertices
 			glm::vec3 *col_pt_ptr = col.intersection(ray_start, ray_end, vertices[i%vertices.size()], vertices[(i + 1)%vertices.size()]);
 
 			//std::cout << "End pt "<< vertices[i].x<<" "<<vertices[i].y << " ! " << vertices[(i + 1) % vertices.size()].x << " "<< vertices[(i + 1) % vertices.size()].y << std::endl;

@@ -75,7 +75,15 @@ int main(void)
 			if (my_square2.isInside(glm::vec3(v4.x, v4.y, 0.0f)) == true) std::cout << "collide " << v4.x <<" "<< v4.y<< std::endl;
 		}*/
 
-		//TODO: collision check - lines - lines
+		// collision check - lines - lines
+		static int count = 0;
+		if (my_car.car_body.checkCollisionLoop(my_square2) == true)
+		{
+			count++;
+
+			std::cout << "Collision "<< count << std::endl;
+			my_car.decel();
+		}
 
 		// draw
 		my_car.car_body.drawLineLoop(MatrixID, Projection * View);

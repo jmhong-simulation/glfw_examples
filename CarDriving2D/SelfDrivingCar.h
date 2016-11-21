@@ -87,7 +87,7 @@ public:
 
 	void updateSensor(const GLSquare& my_square2)// parameter -> object list
 	{
-		// sensor sensing_lines
+		// sensor sensing_lines (distance from car view point)
 		std::vector<glm::vec3> sensor_lines;
 		const glm::vec3 center = car_body.center_;
 		const float radius = 1.0;
