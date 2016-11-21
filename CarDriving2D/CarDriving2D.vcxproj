@@ -128,10 +128,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Box2D.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Box2D.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="GLFWExample.h" />
     <ClInclude Include="GLLineSegments.h" />

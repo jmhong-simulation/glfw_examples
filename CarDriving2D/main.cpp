@@ -66,7 +66,16 @@ int main(void)
 
 		my_car.updateSensor(my_square2);
 
-		//TODO: dont allow for the car to penetrate objects
+
+		// collision check point - square
+		/*for(auto itr : my_car.car_body.vertices)
+		{
+			const glm::vec4 v4 = my_car.car_body.model_matrix_ * glm::vec4(itr.x, itr.y, itr.z, 1.0f);
+
+			if (my_square2.isInside(glm::vec3(v4.x, v4.y, 0.0f)) == true) std::cout << "collide " << v4.x <<" "<< v4.y<< std::endl;
+		}*/
+
+		//TODO: collision check - lines - lines
 
 		// draw
 		my_car.car_body.drawLineLoop(MatrixID, Projection * View);
