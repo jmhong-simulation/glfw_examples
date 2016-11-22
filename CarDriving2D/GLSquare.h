@@ -12,16 +12,26 @@ public:
 
 	Box2D<float> bb;
 
-	void update(const glm::vec3& center, const float& dx, const float& dy)
+	GLSquare()
+	{
+
+	}
+
+	GLSquare(const glm::vec3& center, const float& half_dx, const float& half_dy)
+	{
+		update(center, half_dx, half_dy);
+	}
+
+	void update(const glm::vec3& center, const float& half_dx, const float& half_dy)
 	{
 		center_ = center;
 
-		bb = Box2D<float>(center.x - dx, center.y - dy, center.x + dx, center.y + dy);
+		bb = Box2D<float>(center.x - half_dx, center.y - half_dy, center.x + half_dx, center.y + half_dy);
 
-		const glm::vec3 v0(center.x - dx, center.y - dy, center.z);
-		const glm::vec3 v1(center.x + dx, center.y - dy, center.z);
-		const glm::vec3 v2(center.x + dx, center.y + dy, center.z);
-		const glm::vec3 v3(center.x - dx, center.y + dy, center.z);
+		const glm::vec3 v0(center.x - half_dx, center.y - half_dy, center.z);
+		const glm::vec3 v1(center.x + half_dx, center.y - half_dy, center.z);
+		const glm::vec3 v2(center.x + half_dx, center.y + half_dy, center.z);
+		const glm::vec3 v3(center.x - half_dx, center.y + half_dy, center.z);
 
 		vertices.push_back(v0);
 		vertices.push_back(v1);

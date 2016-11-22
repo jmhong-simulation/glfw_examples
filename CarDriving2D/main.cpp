@@ -12,6 +12,7 @@ Add directories
 #include "GLSquare.h"
 #include "GLLineSegments.h"
 #include "SelfDrivingCar.h"
+#include <memory>
 
 GLFWExample glfw_example;
 
@@ -32,6 +33,15 @@ int main(void)
 	//TODO: extend to object list
 	GLSquare my_square2;
 	my_square2.update(glm::vec3(0.9f, 0.5f, 0.0f), 0.1f, 0.2f);
+
+	std::vector<std::unique_ptr<GLSquare>> obj_list;
+	std::unique_ptr<GLSquare> temp = std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.9f, 0.9f, 0.0f), 0.1f, 0.2f));
+	obj_list.push_back(std::move(temp));
+
+	/*std::vector<std::unique_ptr<GLObject>> obj_list;
+	std::unique_ptr<GLObject> temp = std::unique_ptr<GLObject>(new GLObject());
+	obj_list.push_back(std::move(temp));*/
+
 
 	do {
 
@@ -92,6 +102,12 @@ int main(void)
 		my_car.car_body.drawLineLoop(MatrixID, Projection * View);
 		my_square2.drawLineLoop(MatrixID, Projection * View);
 		my_car.sensing_lines.drawLineLoop(MatrixID, Projection * View);
+
+//		for (auto itr : obj_list)
+		for(int i = 0; i < obj_list.size(); i ++)
+		{
+			obj_list[i]->drawLineLoop(MatrixID, Projection * View);
+		}
 
 		glDisableVertexAttribArray(0);
 
