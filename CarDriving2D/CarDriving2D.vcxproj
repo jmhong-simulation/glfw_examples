@@ -120,7 +120,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\glfw-3.2.1.bin.WIN64\include;D:\github-repository\glfw_examples\glew-2.0.0\include\;..\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\glfw-3.2.1.bin.WIN64\include;..\glew-2.0.0\include\;..\glm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CONSOLE;</PreprocessorDefinitions>
     </ClCompile>
     <Link>

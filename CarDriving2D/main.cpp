@@ -18,7 +18,6 @@ GLFWExample glfw_example;
 
 int main(void)
 {
-
 	glfw_example.init();
 
 	GLuint VertexArrayID;
@@ -31,20 +30,12 @@ int main(void)
 	SelfDrivingCar my_car;
 
 	//TODO: extend to object list
-	GLSquare my_square2;
-	my_square2.update(glm::vec3(0.9f, 0.5f, 0.0f), 0.1f, 0.2f);
-
-	std::vector<std::unique_ptr<GLSquare>> obj_list;
-	std::unique_ptr<GLSquare> temp = std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.9f, 0.9f, 0.0f), 0.1f, 0.2f));
-	obj_list.push_back(std::move(temp));
-
-	/*std::vector<std::unique_ptr<GLObject>> obj_list;
-	std::unique_ptr<GLObject> temp = std::unique_ptr<GLObject>(new GLObject());
-	obj_list.push_back(std::move(temp));*/
-
+	std::vector<std::unique_ptr<GLObject>> obj_list;
+	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.9f, 0.9f, 0.0f), 0.1f, 0.2f))));
+	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.9f, 0.5f, 0.0f), 0.1f, 0.2f))));
+	//TODO: use GLObject list
 
 	do {
-
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -77,8 +68,7 @@ int main(void)
 
 		my_car.update();
 
-		my_car.updateSensor(my_square2);
-
+		my_car.updateSensor(obj_list);
 
 		// collision check point - square
 		/*for(auto itr : my_car.car_body.vertices)
@@ -90,7 +80,7 @@ int main(void)
 
 		// collision check - lines - lines
 		static int count = 0;
-		if (my_car.car_body.checkCollisionLoop(my_square2) == true)
+		if (my_car.car_body.checkCollisionLoop(obj_list) == true)
 		{
 			count++;
 
@@ -100,10 +90,9 @@ int main(void)
 
 		// draw
 		my_car.car_body.drawLineLoop(MatrixID, Projection * View);
-		my_square2.drawLineLoop(MatrixID, Projection * View);
 		my_car.sensing_lines.drawLineLoop(MatrixID, Projection * View);
 
-//		for (auto itr : obj_list)
+		//for (auto itr : obj_list) // this doesn't work with unique ptr
 		for(int i = 0; i < obj_list.size(); i ++)
 		{
 			obj_list[i]->drawLineLoop(MatrixID, Projection * View);

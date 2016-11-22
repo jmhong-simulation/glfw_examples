@@ -6,6 +6,7 @@
 #include <vector>
 #include "Collision.h"
 #include <iostream>
+#include <memory>
 
 class GLObject
 {
@@ -108,6 +109,17 @@ public:
 
 				if (col_pt_ptr != nullptr) return true;
 			}
+
+		return false;
+	}
+	
+	bool checkCollisionLoop(const std::vector<std::unique_ptr<GLObject>>& obj_list)
+	{
+		for (int i = 0; i < obj_list.size(); i++)
+		{
+			if (checkCollisionLoop(*obj_list[i]) == true)
+				return true;
+		}
 
 		return false;
 	}
