@@ -56,6 +56,8 @@ public:
 
 		// Dark blue background
 		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+
+		return 0;
 	}
 
 	void swapBuffers()

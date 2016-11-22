@@ -3,6 +3,9 @@
 http://www.opengl-tutorial.org/beginners-tutorials/
 https://github.com/opengl-tutorials/ogl
 
+#include <stdio.h> error fix : http://stackoverflow.com/questions/38290169/cannot-find-corecrt-h-universalcrt-includepath-is-wrong
+Add directories
+
 */
 
 #include "GLFWExample.h"
