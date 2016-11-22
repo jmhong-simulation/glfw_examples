@@ -29,11 +29,10 @@ int main(void)
 
 	SelfDrivingCar my_car;
 
-	//TODO: extend to object list
 	std::vector<std::unique_ptr<GLObject>> obj_list;
 	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.9f, 0.9f, 0.0f), 0.1f, 0.2f))));
 	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.9f, 0.5f, 0.0f), 0.1f, 0.2f))));
-	//TODO: use GLObject list
+	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f))));
 
 	do {
 		// Clear the screen
@@ -70,27 +69,27 @@ int main(void)
 
 		my_car.updateSensor(obj_list);
 
-		// collision check point - square
-		/*for(auto itr : my_car.car_body.vertices)
-		{
-			const glm::vec4 v4 = my_car.car_body.model_matrix_ * glm::vec4(itr.x, itr.y, itr.z, 1.0f);
-
-			if (my_square2.isInside(glm::vec3(v4.x, v4.y, 0.0f)) == true) std::cout << "collide " << v4.x <<" "<< v4.y<< std::endl;
-		}*/
-
-		// collision check - lines - lines
-		static int count = 0;
+		// car-object collision
 		if (my_car.car_body.checkCollisionLoop(obj_list) == true)
 		{
-			count++;
+			static int count = 0;
 
-			std::cout << "Collision "<< count << std::endl;
-			my_car.decel();
+			std::cout << "Collision "<< count ++<< std::endl;
+			my_car.init();
+			my_car.car_body.model_matrix_ = glm::mat4(1.0f);
 		}
+
+		// car-world escape check
+		//for (auto itr : my_car.car_body.vertices)
+		//{
+		//	const glm::vec4 v4 = my_car.car_body.model_matrix_ * glm::vec4(itr.x, itr.y, itr.z, 1.0f);
+
+		//	if (world_bb.isInside(v4.x, v4.y) == false) std::cout << "World outside " << v4.x << " " << v4.y << std::endl;
+		//}
 
 		// draw
 		my_car.car_body.drawLineLoop(MatrixID, Projection * View);
-		my_car.sensing_lines.drawLineLoop(MatrixID, Projection * View);
+		my_car.sensing_lines.drawLineLoop(MatrixID, Projection * View);		
 
 		//for (auto itr : obj_list) // this doesn't work with unique ptr
 		for(int i = 0; i < obj_list.size(); i ++)

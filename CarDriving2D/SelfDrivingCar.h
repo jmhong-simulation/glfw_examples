@@ -17,14 +17,15 @@ public:
 	SelfDrivingCar()
 	{
 		init();
-
-		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
-		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 
 	void init()
 	{
 		car_body.update(glm::vec3(0.5f, 0.5f, 0.0f), 0.2f, 0.1f);
+
+
+		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
+		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 
 	void turnLeft()
