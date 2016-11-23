@@ -9,12 +9,11 @@ Add directories
 */
 
 #include "GLFWExample.h"
-#include "GLSquare.h"
-#include "GLLineSegments.h"
-#include "SelfDrivingCar.h"
 #include <memory>
+#include "Game.h"
 
 GLFWExample glfw_example;
+Game game_;
 
 int main(void)
 {
@@ -27,15 +26,7 @@ int main(void)
 	// Create and compile our GLSL program from the shaders
 	GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
-	SelfDrivingCar my_car;
-
-	// world (-1.0, -0.5) x (2.0, 1.5)
-	std::vector<std::unique_ptr<GLObject>> obj_list;
-	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f)))); // world
-	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(1.2f, 0.5f, 0.0f), 0.1f, 0.2f))));
-	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(-0.3f, 0.5f, 0.0f), 0.1f, 0.2f))));
-	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.3f, 1.1f, 0.0f), 0.3f, 0.05f))));
-	obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));
+	game_.init();
 
 
 	do {
@@ -64,41 +55,21 @@ int main(void)
 		// animate update
 		//my_car.car_body.rotateCenteredZAxis(1);
 
-		if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) my_car.turnLeft();
-		if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) my_car.turnRight();
-		if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) my_car.accel();
-		if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) my_car.decel();
+		if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) game_.processInput(0);
+		if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) game_.processInput(1);
+		if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) game_.processInput(2);
+		if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) game_.processInput(3);
 
-		my_car.update();
-
-		my_car.updateSensor(obj_list);
-
-		// car-object collision
-		if (my_car.car_body.checkCollisionLoop(obj_list) == true)
-		{
-			static int count = 0;
-
-			std::cout << "Collision "<< count ++<< std::endl;
-			my_car.init();
-			my_car.car_body.model_matrix_ = glm::mat4(1.0f);
-		}
-
-		// car-world escape check
-		//for (auto itr : my_car.car_body.vertices)
-		//{
-		//	const glm::vec4 v4 = my_car.car_body.model_matrix_ * glm::vec4(itr.x, itr.y, itr.z, 1.0f);
-
-		//	if (world_bb.isInside(v4.x, v4.y) == false) std::cout << "World outside " << v4.x << " " << v4.y << std::endl;
-		//}
+		game_.update();
 
 		// draw
-		my_car.car_body.drawLineLoop(MatrixID, Projection * View);
-		my_car.sensing_lines.drawLineLoop(MatrixID, Projection * View);		
+		game_.my_car.car_body.drawLineLoop(MatrixID, Projection * View);
+		game_.my_car.sensing_lines.drawLineLoop(MatrixID, Projection * View);
 
 		//for (auto itr : obj_list) // this doesn't work with unique ptr
-		for(int i = 0; i < obj_list.size(); i ++)
+		for(int i = 0; i < game_.obj_list.size(); i ++)
 		{
-			obj_list[i]->drawLineLoop(MatrixID, Projection * View);
+			game_.obj_list[i]->drawLineLoop(MatrixID, Projection * View);
 		}
 
 		glDisableVertexAttribArray(0);

@@ -19,7 +19,6 @@ public:
 
 	SelfDrivingCar()
 	{
-		init();
 	}
 
 	void init()
