@@ -12,7 +12,9 @@ class GLFWExample
 {
 public:
 	GLFWwindow* window = nullptr;
-	
+	GLuint VertexArrayID;
+	GLuint programID;
+
 	int init()
 	{
 		using namespace glm;
@@ -54,8 +56,14 @@ public:
 		// Ensure we can capture the escape key being pressed below
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-		// Dark blue background
+		// background color
 		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+
+		glGenVertexArrays(1, &VertexArrayID);
+		glBindVertexArray(VertexArrayID);
+
+		// Create and compile our GLSL program from the shaders
+		programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
 		return 0;
 	}
@@ -75,5 +83,13 @@ public:
 	bool getWindowShouldClose()
 	{
 		return (glfwWindowShouldClose(window) == 0);
+	}
+
+	void clear()
+	{
+		// Cleanup VBO
+		//glDeleteBuffers(1, &vertexbuffer);
+		glDeleteVertexArrays(1, &VertexArrayID);
+		glDeleteProgram(programID);
 	}
 };
