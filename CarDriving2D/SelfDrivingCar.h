@@ -13,6 +13,9 @@ public:
 	float turn_coeff_ = 1.0;
 	float accel_coeff_ = 0.0001;
 	float fric = 0.01;
+	float sensing_radius = 1.0;
+
+	std::vector<float> distances_from_sensors_;
 
 	SelfDrivingCar()
 	{
@@ -21,8 +24,7 @@ public:
 
 	void init()
 	{
-		car_body.update(glm::vec3(0.5f, 0.5f, 0.0f), 0.2f, 0.1f);
-
+		car_body.update(glm::vec3(0.5f, 0.5f, 0.0f), 0.1f, 0.05f);
 
 		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
 		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -93,8 +95,9 @@ public:
 		// sensor sensing_lines (distance from car view point)
 		std::vector<glm::vec3> sensor_lines;
 		const glm::vec3 center = car_body.center_;
-		const float radius = 1.0;
-		for (int i = 0; i < 360; i += 10)
+		const float radius = sensing_radius;
+		
+		for (int i = -70; i < 70; i += 20)
 		{
 			glm::vec4 end_pt = glm::vec4(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f, 0.0f);
 			end_pt = car_body.model_matrix_ * end_pt;
@@ -131,11 +134,15 @@ public:
 			{
 				sensor_lines.push_back(center);
 				sensor_lines.push_back(col_pt);
+
+				distances_from_sensors_.push_back(sqrt(glm::dot(col_pt, col_pt)));
 			}
 			else
 			{
 				sensor_lines.push_back(center);
 				sensor_lines.push_back(r);
+
+				distances_from_sensors_.push_back(1.0f);
 			}
 		}
 
