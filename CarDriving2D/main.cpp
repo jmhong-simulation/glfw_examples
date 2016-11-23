@@ -10,13 +10,18 @@ Add directories
 
 #include "GLFWExample.h"
 #include <memory>
-#include "Game.h"
-#include "NeuralNetwork.h"
+#include "CarDrivingGame.h"
+#include "ReinforcementLearning.h"
 
 GLFWExample glfw_example;
-Game game_;
-NeuralNetwork nn_;
+CarDrivingGame game_;
+ReinforcementLearning rl_;
 
+bool is_training = false; // true: rendering, false: background mode
+bool human_play = false;
+bool use_conv = false;
+
+void initializeAI();
 void render_main();
 
 int main(void)
@@ -25,16 +30,53 @@ int main(void)
 	
 	game_.init();
 
-	do {
-		// animate update
-		if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) game_.processInput(0);
-		if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) game_.processInput(1);
-		if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) game_.processInput(2);
-		if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) game_.processInput(3);
+	do 
+	{
+		static bool key_reset_flag = true;
+		if (glfw_example.getKeyPressed(GLFW_KEY_SPACE) == true)
+		{
+			if(key_reset_flag == true)
+			{
+				//std::cout << "space key pressed" << std::endl;
 
+				is_training = !is_training;
+
+				key_reset_flag = false;
+
+				if (is_training)
+				{
+					std::cout << "Back ground training mode" << std::endl;
+				}
+				else
+				{
+					std::cout << "Interactive rendering mode" << std::endl;
+				}
+			}
+		}
+		else
+		{
+			key_reset_flag = true;
+		}
+
+		// animate update
+
+		if(human_play == true)
+		{
+			if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) game_.processInput(0);
+			if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) game_.processInput(1);
+			if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) game_.processInput(2);
+			if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) game_.processInput(3);
+		}
+		else
+		{
+			// AI play and training
+
+		}
+		
 		const float reward = game_.update();
 
-		render_main();
+		if (is_training == false) render_main();
+		else glfwPollEvents();	// for mode change key input
 
 	} // Check if the ESC key was pressed or the window was closed
 	while (!glfw_example.getKeyPressed(GLFW_KEY_ESCAPE) &&	glfw_example.getWindowShouldClose());
@@ -82,4 +124,42 @@ void render_main()
 	glDisableVertexAttribArray(0);
 
 	glfw_example.swapBuffers();
+}
+
+void initializeAI()
+{
+	if (use_conv == true)
+	{
+		game_.compat_state_ = false;
+		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
+
+		rl_.num_input_histories_ = 4;
+		rl_.num_exp_replay_ = 20;
+		rl_.num_state_variables_ = game_.getNumStateVariables();
+		rl_.num_game_actions_ = 3;
+
+		rl_.initializeConv2D();
+
+		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+		{
+			rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
+		}
+	}
+	else
+	{
+		game_.compat_state_ = true;
+		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
+
+		rl_.num_input_histories_ = 4;
+		rl_.num_exp_replay_ = 1;
+		rl_.num_state_variables_ = game_.getNumStateVariables();
+		rl_.num_game_actions_ = 3;
+
+		rl_.initialize();
+
+		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+		{
+			rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
+		}
+	}
 }

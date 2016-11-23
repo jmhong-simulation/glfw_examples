@@ -4,12 +4,17 @@
 #include "GLSquare.h"
 #include "GLLineSegments.h"
 #include "SelfDrivingCar.h"
+#include "VectorND.h"
 
-class Game
+class CarDrivingGame
 {
 public:
 	SelfDrivingCar my_car;
 	std::vector<std::unique_ptr<GLObject>> obj_list;
+
+	//TODO: move these to RLGame mother class
+	bool compat_state_ = true; // false: image state for conv net
+	VectorND<float> state_buffer_;
 
 	void init()
 	{
@@ -21,6 +26,9 @@ public:
 		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(-0.3f, 0.5f, 0.0f), 0.1f, 0.2f))));
 		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.3f, 1.1f, 0.0f), 0.3f, 0.05f))));
 		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));
+
+		//TODO: move to RLGame
+		state_buffer_.initialize(getNumStateVariables(), true);
 	}
 
 	void processInput(const int& action)
@@ -73,5 +81,45 @@ public:
 		//}
 
 		return reward;
+	}
+
+	//TODO: move these to RLGame mother class
+	int getNumStateVariables()
+	{
+		if (compat_state_ == true) return my_car.distances_from_sensors_.size(); // sensor inputs
+		else
+		{
+			std::cout << "getNumStateVariables" << std::endl;
+			exit(1);
+			return 0;
+		}
+	}
+
+	const VectorND<float>& getStateBuffer() // update state buffer and return it
+	{
+		if (compat_state_ == true)
+		{
+			for (int i = 0; i < my_car.distances_from_sensors_.size(); i++)
+			{
+				state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+			}
+		}
+		else
+		{
+			std::cout << "getStateBuffer()" << std::endl;
+			exit(1);
+			//for (int j = 0; j < SCR_HEIGHT; j++)
+			//	for (int i = 0; i < SCR_WIDTH; i++)
+			//	{
+			//		float value = 0.0;
+
+			//		if (renderer_.front_buffer[j][i] == '*') value = 1.0;
+			//		else if (renderer_.front_buffer[j][i] == '-') value = 0.5;
+
+			//		state_buffer_[i + SCR_WIDTH*j] = value;
+			//	}
+		}
+
+		return state_buffer_;
 	}
 };

@@ -138,7 +138,7 @@
   <ItemGroup>
     <ClInclude Include="Box2D.h" />
     <ClInclude Include="Collision.h" />
-    <ClInclude Include="Game.h" />
+    <ClInclude Include="CarDrivingGame.h" />
     <ClInclude Include="GLFWExample.h" />
     <ClInclude Include="GLLineSegments.h" />
     <ClInclude Include="GLObject.h" />

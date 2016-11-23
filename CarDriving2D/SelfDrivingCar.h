@@ -17,6 +17,8 @@ public:
 
 	std::vector<float> distances_from_sensors_;
 
+	int sensor_min = -70, sensor_max = 70, sensor_di = 20;
+
 	SelfDrivingCar()
 	{
 	}
@@ -27,6 +29,12 @@ public:
 
 		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
 		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		int count = 0;
+		for (int i = sensor_min; i < sensor_max; i += sensor_di)
+			count++;
+
+		distances_from_sensors_.resize(count);
 	}
 
 	void turnLeft()
@@ -89,14 +97,14 @@ public:
 		car_body.center_ += vel_; //TODO: update model_matrix AND center?
 	}
 	
-	void updateSensor(const std::vector<std::unique_ptr<GLObject>>& obj_list)// parameter -> object list
+	void updateSensor(const std::vector<std::unique_ptr<GLObject>>& obj_list, const bool& update_gl_obj = true)// parameter -> object list
 	{
 		// sensor sensing_lines (distance from car view point)
 		std::vector<glm::vec3> sensor_lines;
 		const glm::vec3 center = car_body.center_;
 		const float radius = sensing_radius;
 		
-		for (int i = -70; i < 70; i += 20)
+		for (int i = -70, count = 0; i < 70; i += 20, count ++)
 		{
 			glm::vec4 end_pt = glm::vec4(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f, 0.0f);
 			end_pt = car_body.model_matrix_ * end_pt;
@@ -134,54 +142,55 @@ public:
 				sensor_lines.push_back(center);
 				sensor_lines.push_back(col_pt);
 
-				distances_from_sensors_.push_back(sqrt(glm::dot(col_pt, col_pt)));
+				distances_from_sensors_[count] = sqrt(glm::dot(col_pt, col_pt));
 			}
 			else
 			{
 				sensor_lines.push_back(center);
 				sensor_lines.push_back(r);
 
-				distances_from_sensors_.push_back(1.0f);
+				distances_from_sensors_[count] = 1.0f;
 			}
 		}
 
-		sensing_lines.update(sensor_lines);
+		if(update_gl_obj == true)
+			sensing_lines.update(sensor_lines);
 		//sensing_lines.center_ = car_body.center_;
 	}
 
-	void updateSensor(const GLSquare& my_square2)// parameter -> object list
-	{
-		// sensor sensing_lines (distance from car view point)
-		std::vector<glm::vec3> sensor_lines;
-		const glm::vec3 center = car_body.center_;
-		const float radius = 1.0;
-		for (int i = 0; i < 360; i += 10)
-		{
-			glm::vec4 end_pt = glm::vec4(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f, 0.0f);
-			end_pt = car_body.model_matrix_ * end_pt;
+	//void updateSensor(const GLSquare& my_square2)// parameter -> object list
+	//{
+	//	// sensor sensing_lines (distance from car view point)
+	//	std::vector<glm::vec3> sensor_lines;
+	//	const glm::vec3 center = car_body.center_;
+	//	const float radius = 1.0;
+	//	for (int i = 0; i < 360; i += 10)
+	//	{
+	//		glm::vec4 end_pt = glm::vec4(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f, 0.0f);
+	//		end_pt = car_body.model_matrix_ * end_pt;
 
-			const glm::vec3 r = center + glm::vec3(end_pt.x, end_pt.y, end_pt.z);
+	//		const glm::vec3 r = center + glm::vec3(end_pt.x, end_pt.y, end_pt.z);
 
-			int flag;
-			glm::vec3 col_pt;
-			float t;
+	//		int flag;
+	//		glm::vec3 col_pt;
+	//		float t;
 
-			my_square2.checkCollisionLoop(center, r, flag, t, col_pt);
+	//		my_square2.checkCollisionLoop(center, r, flag, t, col_pt);
 
-			//TODO: clamp col_pt by r
-			if (flag == 1)
-			{
-				sensor_lines.push_back(center);
-				sensor_lines.push_back(col_pt);
-			}
-			else
-			{
-				sensor_lines.push_back(center);
-				sensor_lines.push_back(r);
-			}
-		}
+	//		//TODO: clamp col_pt by r
+	//		if (flag == 1)
+	//		{
+	//			sensor_lines.push_back(center);
+	//			sensor_lines.push_back(col_pt);
+	//		}
+	//		else
+	//		{
+	//			sensor_lines.push_back(center);
+	//			sensor_lines.push_back(r);
+	//		}
+	//	}
 
-		sensing_lines.update(sensor_lines);
-		//sensing_lines.center_ = car_body.center_;
-	}
+	//	sensing_lines.update(sensor_lines);
+	//	//sensing_lines.center_ = car_body.center_;
+	//}
 };
