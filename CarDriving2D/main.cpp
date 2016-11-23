@@ -11,9 +11,11 @@ Add directories
 #include "GLFWExample.h"
 #include <memory>
 #include "Game.h"
+#include "NeuralNetwork.h"
 
 GLFWExample glfw_example;
 Game game_;
+NeuralNetwork nn_;
 
 void render_main();
 
