@@ -78,7 +78,6 @@ int main(void)
 		{
 			// AI play and training
 			play_AI();
-
 		}		
 
 		if (is_training == false) render_main();
@@ -156,8 +155,8 @@ void initializeAI()
 		game_.compat_state_ = true;
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
-		rl_.num_input_histories_ = 4;
-		rl_.num_exp_replay_ = 4;
+		rl_.num_input_histories_ = 5;
+		rl_.num_exp_replay_ = 5;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
 		rl_.num_game_actions_ = 4;//TODO: from game
 
@@ -179,7 +178,18 @@ void play_AI()
 
 	game_.processInput(selected_dir);//TODO: multiple input
 	
-	const float reward = game_.update();
+	float reward = game_.update();
+
+	// reset record
+	if (reward < 0.0f)
+	{
+		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+		{
+			rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
+		}
+
+		reward = 0.0f;
+	}
 
 	// update state
 	rl_.history_.getLast().choice_ = selected_dir;

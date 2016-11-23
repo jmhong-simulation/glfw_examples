@@ -54,7 +54,7 @@ public:
 		}
 	}
 
-	float update()
+	float update() // returns reward
 	{
 		float reward = 0.0f;
 
@@ -65,7 +65,7 @@ public:
 
 		const float max_speed = 0.01f;
 
-		reward = CLAMP(speed / max_speed * 0.5 + 0.5f, 0.0f, 1.0f);
+		reward = CLAMP(speed / max_speed, 0.0f, 1.0f);
 
 		//std::cout << speed << " " << reward << std::endl;
 
@@ -81,7 +81,7 @@ public:
 			my_car.init();
 			my_car.car_body.model_matrix_ = glm::mat4(1.0f);
 
-			reward = 0.0f; // negative reward when collide
+			reward = -1.0f; // negative reward when collide
 
 			std::cout << "Reward sum before collision " << reward_sum << std::endl;
 			reward_sum = 0.0f;
@@ -116,8 +116,8 @@ public:
 		{
 			for (int i = 0; i < my_car.distances_from_sensors_.size(); i++)
 			{
-				/*state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);*/
-				state_buffer_[i] = CLAMP(my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+				state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+				//state_buffer_[i] = CLAMP(my_car.distances_from_sensors_[i], 0.0f, 1.0f);
 			}
 		}
 		else
