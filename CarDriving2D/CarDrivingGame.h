@@ -101,7 +101,8 @@ public:
 		{
 			for (int i = 0; i < my_car.distances_from_sensors_.size(); i++)
 			{
-				state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+				/*state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);*/
+				state_buffer_[i] = CLAMP(my_car.distances_from_sensors_[i], 0.0f, 1.0f);
 			}
 		}
 		else

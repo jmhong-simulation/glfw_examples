@@ -23,12 +23,17 @@ bool use_conv = false;
 
 void initializeAI();
 void render_main();
+void play_AI();
+
+//TODO: reset history when game was reset
 
 int main(void)
 {
 	glfw_example.init();
 	
 	game_.init();
+
+	initializeAI();
 
 	do 
 	{
@@ -66,14 +71,15 @@ int main(void)
 			if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) game_.processInput(1);
 			if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) game_.processInput(2);
 			if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) game_.processInput(3);
+
+			game_.update();
 		}
 		else
 		{
 			// AI play and training
+			play_AI();
 
-		}
-		
-		const float reward = game_.update();
+		}		
 
 		if (is_training == false) render_main();
 		else glfwPollEvents();	// for mode change key input
@@ -136,7 +142,7 @@ void initializeAI()
 		rl_.num_input_histories_ = 4;
 		rl_.num_exp_replay_ = 20;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
-		rl_.num_game_actions_ = 3;
+		rl_.num_game_actions_ = 4; //TODO: from game
 
 		rl_.initializeConv2D();
 
@@ -151,9 +157,9 @@ void initializeAI()
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
 		rl_.num_input_histories_ = 4;
-		rl_.num_exp_replay_ = 1;
+		rl_.num_exp_replay_ = 4;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
-		rl_.num_game_actions_ = 3;
+		rl_.num_game_actions_ = 4;//TODO: from game
 
 		rl_.initialize();
 
@@ -162,4 +168,24 @@ void initializeAI()
 			rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
 		}
 	}
+}
+
+void play_AI()
+{
+	rl_.forward();
+
+	//const int selected_dir = is_training == true ? rl_.nn_.getOutputIXEpsilonGreedy(0.1) : rl_.nn_.getOutputIXEpsilonGreedy(0.0);
+	const int selected_dir = rl_.nn_.getOutputIXEpsilonGreedy(0.1);
+
+	game_.processInput(selected_dir);//TODO: multiple input
+	
+	const float reward = game_.update();
+
+	// update state
+	rl_.history_.getLast().choice_ = selected_dir;
+	rl_.history_.getLast().reward_ = reward;
+	rl_.history_.getLast().Q_ = rl_.nn_.getOutput(selected_dir);
+	rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
+
+	rl_.trainReward(); // note that history is updated
 }
