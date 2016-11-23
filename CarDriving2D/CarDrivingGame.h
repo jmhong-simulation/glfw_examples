@@ -65,23 +65,26 @@ public:
 
 		const float max_speed = 0.01f;
 
-		reward = CLAMP(speed / max_speed, 0.0f, 1.0f);
+		reward = CLAMP(speed / max_speed * 0.5 + 0.5f, 0.0f, 1.0f);
 
 		//std::cout << speed << " " << reward << std::endl;
 
-		// TODO: compute reward
 		// car-object collision
+		static float reward_sum = 0.0f;
+		reward_sum += reward;
+
 		if (my_car.car_body.checkCollisionLoop(obj_list) == true)
 		{
 			static int count = 0;
 
-			std::cout << "Collision " << count++ << std::endl;
+			//std::cout << "Collision " << count++ << std::endl;
 			my_car.init();
 			my_car.car_body.model_matrix_ = glm::mat4(1.0f);
 
-			reward = -1.0f; // negative reward when collide
+			reward = 0.0f; // negative reward when collide
 
-			//TODO: report reward sum before collision
+			std::cout << "Reward sum before collision " << reward_sum << std::endl;
+			reward_sum = 0.0f;
 		}
 
 		// car-world escape check
