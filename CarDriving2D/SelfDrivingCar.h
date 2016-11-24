@@ -17,7 +17,7 @@ public:
 
 	std::vector<float> distances_from_sensors_;
 
-	int sensor_min = -90, sensor_max = 90, sensor_di = 30;
+	int sensor_min = -30, sensor_max = 31, sensor_di = 30;
 
 	SelfDrivingCar()
 	{
@@ -25,7 +25,7 @@ public:
 
 	void init()
 	{
-		car_body.update(glm::vec3(0.5f, 0.5f, 0.0f), 0.1f, 0.05f);
+		car_body.update(glm::vec3(0.6, -0.3, 0.0f), 0.1f, 0.05f);
 
 		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
 		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);

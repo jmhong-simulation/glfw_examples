@@ -157,4 +157,26 @@ public:
 
 		if (flag > 0) t = min_t;
 	}
+
+	void initCircle(const glm::vec3& center, const float& radius, const int num_segments)
+	{
+		const float dr = 360.0f / (float)num_segments;
+
+		center_ = center;
+
+		//bb = Box2D<float>(center.x - half_dx, center.y - half_dy, center.x + half_dx, center.y + half_dy);
+
+		vertices.resize(num_segments);
+
+		int count = 0;
+		for (float r = 0; r < 360.0f; r += dr)
+		{
+			vertices[count] = glm::vec3(center_.x + glm::cos(glm::radians(r))*radius, center_.y - glm::sin(glm::radians(r))*radius, 0.0f);
+			
+			count++;
+
+		}
+
+		genVertexBuffer();
+	}
 };

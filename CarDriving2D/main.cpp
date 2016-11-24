@@ -155,8 +155,8 @@ void initializeAI()
 		game_.compat_state_ = true;
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
-		rl_.num_input_histories_ = 5;
-		rl_.num_exp_replay_ = 5;
+		rl_.num_input_histories_ = 4;
+		rl_.num_exp_replay_ = 4;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
 		rl_.num_game_actions_ = 4;//TODO: from game
 
@@ -173,8 +173,8 @@ void play_AI()
 {
 	rl_.forward();
 
-	//const int selected_dir = is_training == true ? rl_.nn_.getOutputIXEpsilonGreedy(0.1) : rl_.nn_.getOutputIXEpsilonGreedy(0.0);
-	const int selected_dir = rl_.nn_.getOutputIXEpsilonGreedy(0.1);
+	const int selected_dir = is_training == true ? rl_.nn_.getOutputIXEpsilonGreedy(0.2) : rl_.nn_.getOutputIXEpsilonGreedy(0.0);
+	//const int selected_dir = rl_.nn_.getOutputIXEpsilonGreedy(0.3);
 
 	game_.processInput(selected_dir);//TODO: multiple input
 	
@@ -188,7 +188,7 @@ void play_AI()
 			rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
 		}
 
-		reward = 0.0f;
+		//reward = 0.0f;
 	}
 
 	// update state

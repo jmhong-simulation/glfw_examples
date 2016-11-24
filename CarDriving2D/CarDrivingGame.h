@@ -21,11 +21,24 @@ public:
 		my_car.init();
 
 		// world (-1.0, -0.5) x (2.0, 1.5)
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f)))); // world
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(1.2f, 0.5f, 0.0f), 0.1f, 0.2f))));
+		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f)))); // world
+		/*obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(1.2f, 0.5f, 0.0f), 0.1f, 0.05f))));
 		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(-0.3f, 0.5f, 0.0f), 0.1f, 0.2f))));
 		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.3f, 1.1f, 0.0f), 0.3f, 0.05f))));
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));
+		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));*/
+		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.2f, 0.7f))));
+
+		{
+			GLObject *temp = new GLObject;
+			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 0.9f, 30);
+			obj_list.push_back(std::move(std::unique_ptr<GLObject>(temp)));
+		}
+
+		{
+			GLObject *temp = new GLObject;
+			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 0.7f, 30);
+			obj_list.push_back(std::move(std::unique_ptr<GLObject>(temp)));
+		}
 
 		//TODO: move to RLGame
 		state_buffer_.initialize(getNumStateVariables(), true);
@@ -61,11 +74,12 @@ public:
 		my_car.update();
 		my_car.updateSensor(obj_list);
 
-		const float speed = MAX2(glm::dot(my_car.vel_, my_car.dir_), 0.0f);
+		//const float speed = MAX2(glm::dot(my_car.vel_, my_car.dir_), 0.0f);
+		const float speed = glm::dot(my_car.vel_, my_car.dir_);
 
 		const float max_speed = 0.01f;
 
-		reward = CLAMP(speed / max_speed, 0.0f, 1.0f);
+		reward = CLAMP(speed / max_speed, 0.0f, 10.0f);
 
 		//std::cout << speed << " " << reward << std::endl;
 
@@ -116,8 +130,8 @@ public:
 		{
 			for (int i = 0; i < my_car.distances_from_sensors_.size(); i++)
 			{
-				state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);
-				//state_buffer_[i] = CLAMP(my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+				//state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+				state_buffer_[i] = CLAMP(my_car.distances_from_sensors_[i], 0.0f, 1.0f);
 			}
 		}
 		else
