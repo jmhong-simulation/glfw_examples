@@ -67,12 +67,12 @@ public:
 		}
 	}
 
-	float update() // returns reward
+	float update(const bool& update_render_data) // returns reward
 	{
 		float reward = 0.0f;
 
 		my_car.update();
-		my_car.updateSensor(obj_list);
+		my_car.updateSensor(obj_list, update_render_data);
 
 		//const float speed = MAX2(glm::dot(my_car.vel_, my_car.dir_), 0.0f);
 		const float speed = glm::dot(my_car.vel_, my_car.dir_);

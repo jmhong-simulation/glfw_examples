@@ -72,7 +72,7 @@ int main(void)
 			if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) game_.processInput(2);
 			if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) game_.processInput(3);
 
-			game_.update();
+			game_.update(true);
 		}
 		else
 		{
@@ -155,8 +155,8 @@ void initializeAI()
 		game_.compat_state_ = true;
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
-		rl_.num_input_histories_ = 4;
-		rl_.num_exp_replay_ = 4;
+		rl_.num_input_histories_ = 10;
+		rl_.num_exp_replay_ = 10;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
 		rl_.num_game_actions_ = 4;//TODO: from game
 
@@ -178,7 +178,7 @@ void play_AI()
 
 	game_.processInput(selected_dir);//TODO: multiple input
 	
-	float reward = game_.update();
+	float reward = game_.update(!is_training);
 
 	// reset record
 	if (reward < 0.0f)
