@@ -79,7 +79,7 @@ public:
 
 		const float max_speed = 0.01f;
 
-		reward = CLAMP(speed / max_speed, 0.0f, 10.0f);
+		reward = CLAMP(speed / max_speed, -1.0f, 10.0f);
 
 		//std::cout << speed << " " << reward << std::endl;
 
@@ -97,7 +97,14 @@ public:
 
 			reward = -1.0f; // negative reward when collide
 
-			std::cout << "Reward sum before collision " << reward_sum << std::endl;
+			//if (count % 10 == 0)
+			{
+				std::cout << "Reward sum before collision " << reward_sum << std::endl;
+				count = 0;
+			}
+
+			count++;
+
 			reward_sum = 0.0f;
 		}
 
