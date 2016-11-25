@@ -94,7 +94,7 @@ public:
 		model_matrix_ = glm::translate(center_) * glm::rotate(glm::mat4(), glm::radians(angle_degree), glm::vec3(0, 0, 1)) * glm::translate(-center_) * model_matrix_;
 	}
 
-	bool checkCollisionLoop(const GLObject& obj2)
+	bool checkCollisionLoop(const GLObject& obj2, glm::vec3& col_obj_center)
 	{
 		Collision col;
 
@@ -107,18 +107,26 @@ public:
 					getTransformed(vertices[i%vertices.size()]),
 					getTransformed(vertices[(i + 1) % vertices.size()]));
 
-				if (col_pt_ptr != nullptr) return true;
+				if (col_pt_ptr != nullptr)
+				{
+					col_obj_center = *col_pt_ptr;
+
+					return true;
+				}
 			}
 
 		return false;
 	}
 	
-	bool checkCollisionLoop(const std::vector<std::unique_ptr<GLObject>>& obj_list)
+	bool checkCollisionLoop(const std::vector<std::unique_ptr<GLObject>>& obj_list, glm::vec3& col_obj_center)
 	{
 		for (int i = 0; i < obj_list.size(); i++)
 		{
-			if (checkCollisionLoop(*obj_list[i]) == true)
+			if (checkCollisionLoop(*obj_list[i], col_obj_center) == true)
+			{
+				//col_obj_center = obj_list[i]->center_;
 				return true;
+			}
 		}
 
 		return false;

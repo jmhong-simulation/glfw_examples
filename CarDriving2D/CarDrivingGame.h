@@ -21,16 +21,17 @@ public:
 		my_car.init();
 
 		// world (-1.0, -0.5) x (2.0, 1.5)
-		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f)))); // world
-		/*obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(1.2f, 0.5f, 0.0f), 0.1f, 0.05f))));
+		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f)))); // world
+		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(1.2f, 0.5f, 0.0f), 0.1f, 0.05f))));
 		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(-0.3f, 0.5f, 0.0f), 0.1f, 0.2f))));
 		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.3f, 1.1f, 0.0f), 0.3f, 0.05f))));
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));*/
+		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));
+		
 		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.2f, 0.7f))));
 
-		{
+	/*	{
 			GLObject *temp = new GLObject;
-			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 0.9f, 30);
+			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 1.0f, 30);
 			obj_list.push_back(std::move(std::unique_ptr<GLObject>(temp)));
 		}
 
@@ -38,7 +39,7 @@ public:
 			GLObject *temp = new GLObject;
 			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 0.7f, 30);
 			obj_list.push_back(std::move(std::unique_ptr<GLObject>(temp)));
-		}
+		}*/
 
 		//TODO: move to RLGame
 		state_buffer_.initialize(getNumStateVariables(), true);
@@ -79,7 +80,9 @@ public:
 
 		const float max_speed = 0.01f;
 
-		reward = CLAMP(speed / max_speed, -1.0f, 10.0f);
+		//if (speed <= 0.0f) reward = 0.0f;
+		//else reward = CLAMP(speed / max_speed * 0.5 + 0.5, 0.0f, 1.0f);
+		reward = CLAMP(speed / max_speed + 0.5, 0.0f, 1.0f);
 
 		//std::cout << speed << " " << reward << std::endl;
 
@@ -87,25 +90,41 @@ public:
 		static float reward_sum = 0.0f;
 		reward_sum += reward;
 
-		if (my_car.car_body.checkCollisionLoop(obj_list) == true)
+		glm::vec3 col_line_center;
+
+		if (my_car.car_body.checkCollisionLoop(obj_list, col_line_center) == true)
 		{
 			static int count = 0;
 
 			//std::cout << "Collision " << count++ << std::endl;
-			my_car.init();
-			my_car.car_body.model_matrix_ = glm::mat4(1.0f);
 
-			reward = -1.0f; // negative reward when collide
+			// reset car
+			// collision response
+			glm::vec3 ref_nor = glm::normalize(my_car.car_body.center_ - col_line_center);
+			const glm::vec3 dp = ref_nor * 0.001f;
+			my_car.car_body.center_ += dp;
+			my_car.car_body.model_matrix_ = glm::translate(dp) * my_car.car_body.model_matrix_;
+			my_car.vel_ = glm::vec3(0);
 
-			//if (count % 10 == 0)
+			//car_body.center_ += vel_; //TODO: update model_matrix AND center?
+
+			// collision response from opposite object
+
+			//reward = -1.0f; // negative reward when collide
+			reward = 0.0f;
+
+			const int report_num = 100;
+
+			if (count % report_num == 0)
 			{
-				std::cout << "Reward sum before collision " << reward_sum << std::endl;
+				std::cout << "Reward sum before "<<report_num<<" collision " << reward_sum << std::endl;
 				count = 0;
+				reward_sum = 0.0f;
 			}
 
 			count++;
 
-			reward_sum = 0.0f;
+			
 		}
 
 		// car-world escape check

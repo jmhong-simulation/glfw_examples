@@ -135,6 +135,8 @@ void initializeAI()
 {
 	if (use_conv == true)
 	{
+		exit(1);
+
 		game_.compat_state_ = false;
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
@@ -147,7 +149,7 @@ void initializeAI()
 
 		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
 		{
-			rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
+			rl_.recordHistory(game_.getStateBuffer(), 0, 1);
 		}
 	}
 	else
@@ -155,8 +157,8 @@ void initializeAI()
 		game_.compat_state_ = true;
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
-		rl_.num_input_histories_ = 5;
-		rl_.num_exp_replay_ = 4;
+		rl_.num_input_histories_ = 4;
+		rl_.num_exp_replay_ = 300;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
 		rl_.num_game_actions_ = 4;//TODO: from game
 
@@ -164,7 +166,7 @@ void initializeAI()
 
 		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
 		{
-			rl_.recordHistory(game_.getStateBuffer(), 0, 0, 0);
+			rl_.recordHistory(game_.getStateBuffer(), 0, 0);
 		}
 	}
 }
@@ -180,22 +182,23 @@ void play_AI()
 	
 	float reward = game_.update(!is_training);
 
-	// reset record
-	if (reward < 0.0f)
+	// update state	
 	{
-		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
-		{
-			rl_.recordHistory(game_.getStateBuffer(), 0, 1, 0);
-		}
+		rl_.history_.getLast().choice_ = selected_dir;
+		rl_.history_.getLast().reward_ = reward;
+		rl_.recordHistory(game_.getStateBuffer(), reward, selected_dir);
 
-		//reward = 0.0f;
+		rl_.trainReward(); // note that history is updated
 	}
 
-	// update state
-	rl_.history_.getLast().choice_ = selected_dir;
-	rl_.history_.getLast().reward_ = reward;
-	rl_.history_.getLast().Q_ = rl_.nn_.getOutput(selected_dir);
-	rl_.recordHistory(game_.getStateBuffer(), 0, selected_dir, 0);
+	 // reset record, game was reset already in update
+	//if (reward < 0.0f)
+	//{
+	//	for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+	//	{
+	//		rl_.recordHistory(game_.getStateBuffer(), 0, 0);
+	//	}
 
-	rl_.trainReward(); // note that history is updated
+	//	//reward = 0.0f;
+	//}
 }
