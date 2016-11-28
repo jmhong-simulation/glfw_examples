@@ -34,6 +34,12 @@ int main(void)
 	game_.init();
 
 	initializeAI();
+	
+	if (is_training)
+	{
+		std::cout << "Back ground training mode." << std::endl;
+		std::cout << "Press space to change mode." << std::endl;
+	}
 
 	do 
 	{
@@ -81,7 +87,11 @@ int main(void)
 		}		
 
 		if (is_training == false) render_main();
-		else glfwPollEvents();	// for mode change key input
+		else
+		{
+			render_main();
+			glfwPollEvents();	// for mode change key input
+		}
 
 	} // Check if the ESC key was pressed or the window was closed
 	while (!glfw_example.getKeyPressed(GLFW_KEY_ESCAPE) &&	glfw_example.getWindowShouldClose());
@@ -158,7 +168,7 @@ void initializeAI()
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
 		rl_.num_input_histories_ = 4;
-		rl_.num_exp_replay_ = 100;
+		rl_.num_exp_replay_ = 10;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
 		rl_.num_game_actions_ = 4;//TODO: from game
 
@@ -182,6 +192,11 @@ void play_AI()
 	else if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) selected_dir = 1;
 	else if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) selected_dir = 2;
 	else if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) selected_dir = 3;
+	else if (glfw_example.getKeyPressed(GLFW_KEY_W) == true)
+	{
+		rl_.nn_.writeTXT("nn.txt");
+		std::cout << "writing complete" << std::endl;
+	}
 	else // AI mode
 	{
 		selected_dir = is_training == true ? rl_.nn_.getOutputIXEpsilonGreedy(0.2) : rl_.nn_.getOutputIXEpsilonGreedy(0.0);
@@ -189,7 +204,6 @@ void play_AI()
 		
 	}
 	game_.processInput(selected_dir);//TODO: multiple input
-	
 	
 	float reward = game_.update(!is_training);
 
