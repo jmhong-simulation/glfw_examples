@@ -89,7 +89,7 @@ int main(void)
 		if (is_training == false) render_main();
 		else
 		{
-			render_main();
+			//render_main();
 			glfwPollEvents();	// for mode change key input
 		}
 
@@ -170,13 +170,13 @@ void initializeAI()
 		rl_.num_input_histories_ = 4;
 		rl_.num_exp_replay_ = 10;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
-		rl_.num_game_actions_ = 4;//TODO: from game
+		rl_.num_game_actions_ = 3;//TODO: from game, left, right, stay
 
 		rl_.initialize();
 
 		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
 		{
-			rl_.recordHistory(game_.getStateBuffer(), 0, 0);
+			rl_.recordHistory(game_.getStateBuffer(), 0.5, 0);
 		}
 	}
 }
@@ -190,19 +190,24 @@ void play_AI()
 	// user supervised mode
 	if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) selected_dir = 0;
 	else if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) selected_dir = 1;
-	else if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) selected_dir = 2;
-	else if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) selected_dir = 3;
-	else if (glfw_example.getKeyPressed(GLFW_KEY_W) == true)
+	//else if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) selected_dir = 2;
+	//else if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) selected_dir = 3;
+	else // AI mode
+	{
+		selected_dir = is_training == true ? rl_.nn_.getOutputIXEpsilonGreedy(0.2) : rl_.nn_.getOutputIXEpsilonGreedy(0.0);
+		//selected_dir = rand() % 3;
+
+		//const int selected_dir = rl_.nn_.getOutputIXEpsilonGreedy(0.3);
+		//selected_dir = rl_.nn_.getOutputIXProbability();
+		
+	}
+
+	if (glfw_example.getKeyPressed(GLFW_KEY_Q) == true)
 	{
 		rl_.nn_.writeTXT("nn.txt");
 		std::cout << "writing complete" << std::endl;
 	}
-	else // AI mode
-	{
-		selected_dir = is_training == true ? rl_.nn_.getOutputIXEpsilonGreedy(0.2) : rl_.nn_.getOutputIXEpsilonGreedy(0.0);
-		//const int selected_dir = rl_.nn_.getOutputIXEpsilonGreedy(0.3);
-		
-	}
+
 	game_.processInput(selected_dir);//TODO: multiple input
 	
 	float reward = game_.update(!is_training);
@@ -213,17 +218,18 @@ void play_AI()
 		rl_.history_.getLast().reward_ = reward;
 		rl_.recordHistory(game_.getStateBuffer(), reward, selected_dir);
 
-		rl_.trainReward(); // note that history is updated
+		//if(is_training == true)
+			rl_.trainReward(); // note that history is updated
 	}
 
 	 // reset record, game was reset already in update
-	//if (reward < 0.0f)
-	//{
-	//	for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
-	//	{
-	//		rl_.recordHistory(game_.getStateBuffer(), 0, 0);
-	//	}
+	if (reward < 0.0f)
+	{
+		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+		{
+			rl_.recordHistory(game_.getStateBuffer(), 0, 0);
+		}
 
-	//	//reward = 0.0f;
-	//}
+		//reward = 0.0f;
+	}
 }

@@ -17,7 +17,7 @@ public:
 
 	std::vector<float> distances_from_sensors_;
 
-	int sensor_min = -180, sensor_max = 179, sensor_di = 10;
+	int sensor_min = -40, sensor_max = 40, sensor_di = 20;
 
 	SelfDrivingCar()
 	{
@@ -25,14 +25,14 @@ public:
 
 	void init()
 	{
-		//car_body.update(glm::vec3(0.6, -0.3, 0.0f), 0.1f, 0.05f);
-		car_body.update(glm::vec3(0.5, 0.5, 0.0f), 0.1f, 0.05f);
+		car_body.update(glm::vec3(0.6, -0.3, 0.0f), 0.1f, 0.05f);
+		//car_body.update(glm::vec3(0.5, 0.5, 0.0f), 0.1f, 0.05f);
 
 		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
 		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		int count = 0;
-		for (int i = sensor_min; i < sensor_max; i += sensor_di)
+		for (int i = sensor_min; i <= sensor_max; i += sensor_di)
 			count++;
 
 		distances_from_sensors_.resize(count);
@@ -104,7 +104,7 @@ public:
 		const glm::vec3 center = car_body.center_;
 		const float radius = sensing_radius;
 		
-		for (int i = sensor_min, count = 0; i < sensor_max; i += sensor_di, count ++)
+		for (int i = sensor_min, count = 0; i <= sensor_max; i += sensor_di, count ++)
 		{
 			glm::vec4 end_pt = glm::vec4(radius*cos(glm::radians((float)i)), radius*-sin(glm::radians((float)i)), 0.0f, 0.0f);
 			end_pt = car_body.model_matrix_ * end_pt;

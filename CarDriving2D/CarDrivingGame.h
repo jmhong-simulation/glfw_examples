@@ -11,6 +11,7 @@ class CarDrivingGame
 public:
 	SelfDrivingCar my_car;
 	std::vector<std::unique_ptr<GLObject>> obj_list;
+	int prev_action_;
 
 	//TODO: move these to RLGame mother class
 	bool compat_state_ = true; // false: image state for conv net
@@ -21,15 +22,15 @@ public:
 		my_car.init();
 
 		// world (-1.0, -0.5) x (2.0, 1.5)
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f)))); // world
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(1.2f, 0.5f, 0.0f), 0.1f, 0.05f))));
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(-0.3f, 0.5f, 0.0f), 0.1f, 0.2f))));
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.3f, 1.1f, 0.0f), 0.3f, 0.05f))));
-		obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));
+		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.5f, 1.0f)))); // world
+		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(1.2f, 0.5f, 0.0f), 0.1f, 0.05f))));
+		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(-0.3f, 0.5f, 0.0f), 0.1f, 0.2f))));
+		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.3f, 1.1f, 0.0f), 0.3f, 0.05f))));
+		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.6f, -0.25f, 0.0f), 0.3f, 0.25f))));
 		
 		//obj_list.push_back(std::move(std::unique_ptr<GLSquare>(new GLSquare(glm::vec3(0.5f, 0.5f, 0.0f), 1.2f, 0.7f))));
 
-	/*	{
+		{
 			GLObject *temp = new GLObject;
 			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 1.0f, 30);
 			obj_list.push_back(std::move(std::unique_ptr<GLObject>(temp)));
@@ -37,9 +38,9 @@ public:
 
 		{
 			GLObject *temp = new GLObject;
-			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 0.7f, 30);
+			temp->initCircle(glm::vec3(0.5f, 0.5f, 0.0f), 0.65f, 30);
 			obj_list.push_back(std::move(std::unique_ptr<GLObject>(temp)));
-		}*/
+		}
 
 		//TODO: move to RLGame
 		state_buffer_.initialize(getNumStateVariables(), true);
@@ -47,7 +48,28 @@ public:
 
 	void processInput(const int& action)
 	{
+		prev_action_ = action;
+
 		switch (action)
+		{
+		case 0:
+			my_car.turnLeft(); // right
+			break;
+		case 1:
+			my_car.turnRight(); // left
+			break;
+		case 2:
+			// stay
+			break;
+		default:
+			std::cout << "Wrong action " << std::endl;
+			exit(1);
+			break;
+		}
+		// always accel
+		my_car.accel();
+
+		/*switch (action)
 		{
 		case 0:
 			my_car.turnLeft();
@@ -65,13 +87,13 @@ public:
 			std::cout << "Wrong action " << std::endl;
 			exit(1);
 			break;
-		}
+		}*/
 	}
 
 	float update(const bool& update_render_data) // returns reward
 	{
 		float reward = 0.0f;
-
+		
 		my_car.update();
 		my_car.updateSensor(obj_list, update_render_data);
 
@@ -82,7 +104,10 @@ public:
 
 		//if (speed <= 0.0f) reward = 0.0f;
 		//else reward = CLAMP(speed / max_speed * 0.5 + 0.5, 0.0f, 1.0f);
-		reward = CLAMP(speed / max_speed + 0.5, 0.0f, 1.0f);
+		//reward = CLAMP(speed / max_speed + 0.5, 0.0f, 1.0f);
+		reward = CLAMP(speed / max_speed * 2.0f, 0.0f, 1.0f);
+
+		//if (prev_action_ == 0 || prev_action_ == 1) reward -= 0.1f; // penalty turning
 
 		//std::cout << speed << " " << reward << std::endl;
 
@@ -100,20 +125,23 @@ public:
 
 			// reset car
 			// collision response
-			glm::vec3 ref_nor = glm::normalize(my_car.car_body.center_ - col_line_center);
+			/*glm::vec3 ref_nor = glm::normalize(my_car.car_body.center_ - col_line_center);
 			const glm::vec3 dp = ref_nor * 0.001f;
 			my_car.car_body.center_ += dp;
 			my_car.car_body.model_matrix_ = glm::translate(dp) * my_car.car_body.model_matrix_;
-			my_car.vel_ = glm::vec3(0);
+			my_car.vel_ = glm::vec3(0);*/
+
+			my_car.init();
+			my_car.car_body.model_matrix_ = glm::mat4();
 
 			//car_body.center_ += vel_; //TODO: update model_matrix AND center?
 
 			// collision response from opposite object
 
-			//reward = -1.0f; // negative reward when collide
-			reward = 0.0f;
+			reward = 0.0f; // negative reward when collide
+			//reward = 0.0f;
 
-			const int report_num = 100;
+			const int report_num = 1;
 
 			if (count % report_num == 0)
 			{
@@ -122,9 +150,7 @@ public:
 				reward_sum = 0.0f;
 			}
 
-			count++;
-
-			
+			count++;			
 		}
 
 		// car-world escape check
@@ -158,7 +184,11 @@ public:
 			{
 				//state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);
 				state_buffer_[i] = CLAMP(my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+
+				//std::cout << state_buffer_[i] << " ";
 			}
+
+			//std::cout << std::endl;
 		}
 		else
 		{
