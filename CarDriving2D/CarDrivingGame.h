@@ -138,7 +138,7 @@ public:
 
 			// collision response from opposite object
 
-			reward = 0.0f; // negative reward when collide
+			reward = -1.0f; // negative reward when collide
 			//reward = 0.0f;
 
 			const int report_num = 1;

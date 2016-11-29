@@ -17,7 +17,7 @@ GLFWExample glfw_example;
 CarDrivingGame game_;
 ReinforcementLearning rl_;
 
-bool is_training = false; // true: rendering, false: background mode
+bool is_training = true; // false: rendering, true: background mode
 bool human_play = false;
 bool use_conv = false;
 
@@ -157,7 +157,7 @@ void initializeAI()
 
 		rl_.initializeConv2D();
 
-		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+		for (int h = 0; h < rl_.num_input_histories_; h++)
 		{
 			rl_.recordHistory(game_.getStateBuffer(), 0, 1);
 		}
@@ -168,15 +168,15 @@ void initializeAI()
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
 		rl_.num_input_histories_ = 4;
-		rl_.num_exp_replay_ = 10;
+		rl_.num_exp_replay_ = 1;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
 		rl_.num_game_actions_ = 3;//TODO: from game, left, right, stay
 
 		rl_.initialize();
 
-		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+		for (int h = 0; h < rl_.num_input_histories_; h++)
 		{
-			rl_.recordHistory(game_.getStateBuffer(), 0.5, 0);
+			rl_.recordHistory(game_.getStateBuffer(), 0.0f, 2); // choice 2 is stay
 		}
 	}
 }
@@ -214,22 +214,40 @@ void play_AI()
 
 	// update state	
 	{
-		rl_.history_.getLast().choice_ = selected_dir;
-		rl_.history_.getLast().reward_ = reward;
+		/*rl_.history_.getLast().choice_ = selected_dir;
+		rl_.history_.getLast().reward_ = reward;*/
 		rl_.recordHistory(game_.getStateBuffer(), reward, selected_dir);
 
 		//if(is_training == true)
 			rl_.trainReward(); // note that history is updated
+			rl_.trainRewardMemory();
 	}
 
-	 // reset record, game was reset already in update
+	static float reward_sum = 0.0f;
+	reward_sum += reward;
+
 	if (reward < 0.0f)
 	{
-		for (int h = 0; h < rl_.history_.array_.num_elements_; h++)
+		static float max_reward = 0.0f;
+
+		if (reward_sum > max_reward)
 		{
-			rl_.recordHistory(game_.getStateBuffer(), 0, 0);
+			max_reward = reward_sum;
+
+			std::cout << "New record " << max_reward << std::endl;
+
+			//rl_.trainRewardMemory();
 		}
 
-		//reward = 0.0f;
+		reward_sum = 0.0f;
+
+		// reset game memory
+
+		rl_.memory_.reset();
+
+		for (int h = 0; h < rl_.num_input_histories_; h++)
+		{
+			rl_.recordHistory(game_.getStateBuffer(), 0.0f, 2); // choice 2 is stay
+		}
 	}
 }
