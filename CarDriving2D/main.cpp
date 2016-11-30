@@ -168,13 +168,13 @@ void initializeAI()
 		game_.state_buffer_.initialize(game_.getNumStateVariables(), true);
 
 		rl_.num_input_histories_ = 4;
-		rl_.num_exp_replay_ = 1;
+		rl_.num_exp_replay_ = 0;
 		rl_.num_state_variables_ = game_.getNumStateVariables();
 		rl_.num_game_actions_ = 3;//TODO: from game, left, right, stay
 
 		rl_.initialize();
 
-		for (int h = 0; h < rl_.num_input_histories_; h++)
+		for (int h = 0; h < rl_.num_input_histories_ + rl_.num_exp_replay_; h++)
 		{
 			rl_.recordHistory(game_.getStateBuffer(), 0.0f, 2); // choice 2 is stay
 		}
@@ -219,8 +219,11 @@ void play_AI()
 		rl_.recordHistory(game_.getStateBuffer(), reward, selected_dir);
 
 		//if(is_training == true)
-			rl_.trainReward(); // note that history is updated
-			rl_.trainRewardMemory();
+		for (int ex = 0; ex <= rl_.num_exp_replay_; ex++)
+		{
+			rl_.trainReward(-ex);  // note that history is updated
+		}
+	
 	}
 
 	static float reward_sum = 0.0f;
@@ -236,7 +239,7 @@ void play_AI()
 
 			std::cout << "New record " << max_reward << std::endl;
 
-			//rl_.trainRewardMemory();
+			rl_.trainRewardMemory();
 		}
 
 		reward_sum = 0.0f;
@@ -245,7 +248,7 @@ void play_AI()
 
 		rl_.memory_.reset();
 
-		for (int h = 0; h < rl_.num_input_histories_; h++)
+		for (int h = 0; h < rl_.num_input_histories_ + rl_.num_exp_replay_; h++)
 		{
 			rl_.recordHistory(game_.getStateBuffer(), 0.0f, 2); // choice 2 is stay
 		}
