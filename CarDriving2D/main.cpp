@@ -285,14 +285,14 @@ void play_AI()
 			// forward from previous inputs
 			rl_.makeInputVectorFromHistory(inv_m-1, rl_.old_input_vector_);
 			rl_.nn_.setInputVector(rl_.old_input_vector_);
-			for (int i = 0; i < 10; i ++)
+			for (int i = 0; i < 100; i ++)
 			{
 				rl_.nn_.feedForward();
 				rl_.nn_.copyOutputVectorTo(false, output_target_temp);
 				
 				const float error = ABS(Q_target - output_target_temp[rl_.memory_.selected_array_[m]]);
 
-				if (error < 1e-3) break;
+				if (error < 1e-1) break;
 
 				output_target_temp[rl_.memory_.selected_array_[m]] = Q_target;
 

@@ -25,8 +25,8 @@ public:
 
 	void init()
 	{
-		car_body.update(glm::vec3(0.6, -0.3, 0.0f), 0.1f, 0.05f);
-		//car_body.update(glm::vec3(0.5, 0.5, 0.0f), 0.1f, 0.05f);
+		//car_body.update(glm::vec3(0.6, -0.3, 0.0f), 0.1f, 0.05f);
+		car_body.update(glm::vec3(0.5, 0.5, 0.0f), 0.1f, 0.05f);
 
 		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
 		vel_ = glm::vec3(0.01f, 0.0f, 0.0f);
@@ -142,7 +142,7 @@ public:
 				sensor_lines.push_back(center);
 				sensor_lines.push_back(col_pt);
 
-				distances_from_sensors_[count] = sqrt(glm::dot(col_pt, col_pt));
+				distances_from_sensors_[count] = sqrt(glm::dot(col_pt-center, col_pt-center));
 			}
 			else
 			{
