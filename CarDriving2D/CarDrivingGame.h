@@ -44,6 +44,7 @@ public:
 
 		//TODO: move to RLGame
 		state_buffer_.initialize(getNumStateVariables(), true);
+		state_buffer_.assignAllValues(1.0f);
 	}
 
 	void processInput(const int& action)
@@ -66,7 +67,7 @@ public:
 			exit(1);
 			break;
 		}
-		// always accel
+		// always accel in this example
 		my_car.accel();
 
 		/*switch (action)
@@ -90,33 +91,22 @@ public:
 		}*/
 	}
 
-	float update(const bool& update_render_data) // returns reward
+	void update(const bool& update_render_data, float& reward, int& flag) // flag = 0 : continue, 1 : terminal
 	{
-		float reward = 0.0f;
+		flag = 0;
+		reward = 0.0f;
 		
 		my_car.update();
 		my_car.updateSensor(obj_list, update_render_data);
 
-		//const float speed = MAX2(glm::dot(my_car.vel_, my_car.dir_), 0.0f);
+		// velocity reward
 		const float speed = glm::dot(my_car.vel_, my_car.dir_);
-
 		const float max_speed = 0.01f;
+		//reward = speed / max_speed;
+		reward = 0.1f; // constant reward for this example
 
-		//if (speed <= 0.0f) reward = 0.0f;
-		//else reward = CLAMP(speed / max_speed * 0.5 + 0.5, 0.0f, 1.0f);
-		//reward = CLAMP(speed / max_speed + 0.5, 0.0f, 1.0f);
-		reward = CLAMP(speed / max_speed * 2.0f, 0.0f, 1.0f);
-
-		//if (prev_action_ == 0 || prev_action_ == 1) reward -= 0.1f; // penalty turning
-
-		//std::cout << speed << " " << reward << std::endl;
-
-		// car-object collision
-		static float reward_sum = 0.0f;
-		reward_sum += reward;
-
+		// collision check
 		glm::vec3 col_line_center;
-
 		if (my_car.car_body.checkCollisionLoop(obj_list, col_line_center) == true)
 		{
 			static int count = 0;
@@ -131,26 +121,12 @@ public:
 			my_car.car_body.model_matrix_ = glm::translate(dp) * my_car.car_body.model_matrix_;
 			my_car.vel_ = glm::vec3(0);*/
 
+			// reset car status
 			my_car.init();
 			my_car.car_body.model_matrix_ = glm::mat4();
 
-			//car_body.center_ += vel_; //TODO: update model_matrix AND center?
-
-			// collision response from opposite object
-
-			reward = -1.0f; // negative reward when collide
-			//reward = 0.0f;
-
-			const int report_num = 1;
-
-			if (count % report_num == 0)
-			{
-				std::cout << "Reward sum before "<<report_num<<" collision " << reward_sum << std::endl;
-				count = 0;
-				reward_sum = 0.0f;
-			}
-
-			count++;			
+			reward = 0.0f;	// no reward
+			flag = 1;		// terminal //TODO: use enum 
 		}
 
 		// car-world escape check
@@ -160,8 +136,6 @@ public:
 
 		//	if (world_bb.isInside(v4.x, v4.y) == false) std::cout << "World outside " << v4.x << " " << v4.y << std::endl;
 		//}
-
-		return reward;
 	}
 
 	//TODO: move these to RLGame mother class
@@ -176,6 +150,11 @@ public:
 		}
 	}
 
+	int getNumActions()
+	{
+		return 3; // left, right, stay
+	}
+
 	const VectorND<float>& getStateBuffer() // update state buffer and return it
 	{
 		if (compat_state_ == true)
@@ -183,7 +162,8 @@ public:
 			for (int i = 0; i < my_car.distances_from_sensors_.size(); i++)
 			{
 				//state_buffer_[i] = CLAMP(1.0 - my_car.distances_from_sensors_[i], 0.0f, 1.0f);
-				state_buffer_[i] = CLAMP(my_car.distances_from_sensors_[i], 0.0f, 1.0f);
+				state_buffer_[i] = my_car.distances_from_sensors_[i]; //Note: most of distances are larger than 1. Don't clamp.
+				//state_buffer_[i] = my_car.distances_from_sensors_[i] > 0.7 ? 1.0f : 0.0f;
 
 				//std::cout << state_buffer_[i] << " ";
 			}

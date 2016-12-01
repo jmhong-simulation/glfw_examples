@@ -82,7 +82,7 @@ public:
 
 	bool getWindowShouldClose()
 	{
-		return (glfwWindowShouldClose(window) == 0);
+		return (glfwWindowShouldClose(window) != 0);
 	}
 
 	void clear()

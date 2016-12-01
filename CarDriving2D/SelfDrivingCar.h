@@ -10,7 +10,7 @@ public:
 	
 	glm::vec3 dir_, vel_;
 
-	float turn_coeff_ = 1.0;
+	float turn_coeff_ = 2.0;
 	float accel_coeff_ = 0.0001;
 	float fric = 0.01;
 	float sensing_radius = 1.0;
@@ -29,7 +29,7 @@ public:
 		//car_body.update(glm::vec3(0.5, 0.5, 0.0f), 0.1f, 0.05f);
 
 		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
-		vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
+		vel_ = glm::vec3(0.01f, 0.0f, 0.0f);
 
 		int count = 0;
 		for (int i = sensor_min; i <= sensor_max; i += sensor_di)
