@@ -84,10 +84,10 @@ int main(void)
 			if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) game_.processInput(0);
 			if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) game_.processInput(1);
 			// do nothing gives game_.processInput(2);
-			//if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) game_.processInput(2);
-			//if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) game_.processInput(3);
+			if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) game_.processInput(2);
+			if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) game_.processInput(3);
 
-			game_.processInput(2); // always accelerate in this example
+			//game_.processInput(2); // always accelerate in this example
 
 			// dummy reward
 			float reward;
@@ -191,7 +191,7 @@ void initializeAI()
 
 		for (int h = 0; h < rl_.num_input_histories_; h++)
 		{
-			rl_.recordHistory(game_.getStateBuffer(), 0.0f, 2, VectorND<float>(game_.getNumActions())); // choice 2 is stay
+			rl_.recordHistory(game_.getStateBuffer(), 0.0f, 4, VectorND<float>(game_.getNumActions())); // choice 2 is stay
 		}
 	}
 }
@@ -203,8 +203,8 @@ const int getSelectedDir()
 	// user supervised mode
 	if (glfw_example.getKeyPressed(GLFW_KEY_LEFT) == true) selected_dir = 0;
 	else if (glfw_example.getKeyPressed(GLFW_KEY_RIGHT) == true) selected_dir = 1;
-	//else if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) selected_dir = 2;
-	//else if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) selected_dir = 3;
+	else if (glfw_example.getKeyPressed(GLFW_KEY_UP) == true) selected_dir = 2;
+	else if (glfw_example.getKeyPressed(GLFW_KEY_DOWN) == true) selected_dir = 3;
 	else // AI mode
 	{
 		selected_dir = is_training == true ? rl_.nn_.getOutputIXEpsilonGreedy(0.2f) : rl_.nn_.getOutputIXEpsilonGreedy(0.0f);	

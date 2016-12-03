@@ -25,11 +25,12 @@ public:
 
 	void init()
 	{
-		//car_body.update(glm::vec3(0.6, -0.3, 0.0f), 0.1f, 0.05f);
-		car_body.update(glm::vec3(0.5, 0.5, 0.0f), 0.1f, 0.05f);
+		car_body.update(glm::vec3(0.6, -0.3, 0.0f), 0.1f, 0.05f);
+		//car_body.update(glm::vec3(0.5, 0.5, 0.0f), 0.1f, 0.05f);
 
 		dir_ = glm::vec3(1.0f, 0.0f, 0.0f);
-		vel_ = glm::vec3(0.01f, 0.0f, 0.0f);
+		vel_ = glm::vec3(0.01f, 0.0f, 0.0f); // some initial speed helps to move car trained
+		//vel_ = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		int count = 0;
 		for (int i = sensor_min; i <= sensor_max; i += sensor_di)
